@@ -1,0 +1,89 @@
+
+\begin{tikzpicture}[-, >=stealth', auto, node distance=1cm]
+   %Outadjazenzliste:
+	 \node[rectangle,draw] (out1) {1};
+		 \node[circle,draw] (out12) [right of=out1] {2};
+		 \node[circle,draw] (out13) [right of=out12] {3};
+	 	 \node[circle,draw] (out14) [right of=out13] {4};
+		 \node[circle,draw] (out17) [right of=out14] {7};
+		
+	 \node[rectangle,draw] (out2) [below of=out1] {2};
+	     \node[circle,draw] (out21) [right of=out2] {6};
+		\node[circle,draw] (out26) [right of=out21] {7};
+			
+	\node[rectangle,draw] (out3) [below of=out2] {3};
+	    \node[circle,draw] (out34) [right of=out3] {4};
+		
+	 \node[rectangle,draw](out4)[below of=out3]{4};
+	    \node[circle,draw](out45)[right of=out4]{5};
+			
+	 \node[rectangle,draw](out5)[below of=out4]{5};
+		\node[circle,draw](out56)[right of=out5]{6};
+		\node[circle,draw](out57)[right of=out56]{7};
+    
+	 \node[rectangle,draw](out6)[below of=out5]{6};
+	
+	 \node[rectangle,draw](out7)[below of=out6]{7};
+	 
+	 
+	 \node (map) [right of=out17] {$\mapsto$};
+%Indegree:
+   
+	 \node[rectangle,draw] (in1) [right of=map] {1};
+	 	\node (ind1) [right of=in1] {0};
+		
+	 \node[rectangle,draw] (in2) [below of=in1] {2};
+	 	\node (ind2) [right of=in2] {I};
+			
+	\node[rectangle,draw] (in3) [below of=in2] {3};
+	 	\node (ind3) [right of=in3] {I};
+		
+	 \node[rectangle,draw](in4)[below of=in3]{4};
+	 	\node (ind4) [right of=in4] {II};
+			
+	 \node[rectangle,draw](in5)[below of=in4]{5};
+	 	\node (ind5) [right of=in5] {I};
+    
+	 \node[rectangle,draw](in6)[below of=in5]{6};
+	 	\node (ind6) [right of=in6] {II};
+	
+	 \node[rectangle,draw](in7)[below of=in6]{7};
+	 	\node (ind7) [right of=in7] {III};
+	 	
+	 	
+	 %Text:
+	 \node (Outadj) [above of=out1] {Outadj:};
+	 \node (Indeg) [above of=in1] {Indeg:};
+	
+	\path[draw]
+		 (out1) edge (out2)
+		 (out2) edge (out3)
+		 (out3) edge (out4)
+		 (out4) edge (out5)
+		 (out5) edge (out6)
+		 (out6) edge (out7)
+		
+		 (out1) edge (out12)
+		 (out12) edge (out13)
+		 (out13) edge (out14)
+		 (out14) edge (out17)
+		
+		 (out2) edge (out21)
+		 (out21) edge (out26)
+		
+		 (out3) edge (out34)
+		
+		 (out4) edge (out45)
+		
+		 (out5) edge (out56)
+		 (out56) edge (out57);
+	
+	\path[draw]
+		 (in1) edge (in2)
+		 (in2) edge (in3)
+		 (in3) edge (in4)
+		 (in4) edge (in5)
+		 (in5) edge (in6)
+		 (in6) edge (in7);
+		 
+\end{tikzpicture}

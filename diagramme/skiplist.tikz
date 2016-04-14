@@ -1,0 +1,109 @@
+    \begin{tikzpicture}
+        [->,>=stealth',shorten >=1pt,
+        auto,minimum size=1.2cm,node distance=2cm,
+        main node/.style={circle,draw},
+        every node/.style={transform shape},
+        scale=0.7]
+
+        \node[main node] (ninfty_0) {$-\infty$};
+            \node[main node] (ninfty_1)[above of=ninfty_0]  {$-\infty$};
+            \node[main node] (ninfty_2)[above of=ninfty_1]  {$-\infty$};
+            \node[main node] (ninfty_3)[above of=ninfty_2]  {$-\infty$};
+        \node[main node] (11_0)[right of=ninfty_0] {$11$};
+            \node[main node] (11_1)[above of=11_0] {$11$};
+            \node[main node] (11_2)[above of=11_1] {$11$};
+        \node[main node] (13_0)[right of=11_0] {$13$};
+        \node[main node] (14_0)[right of=13_0] {$14$};
+            \node[main node] (14_1)[above of=14_0] {$14$};
+        \node[main node] (16_0)[right of=14_0] {$16$};
+            \node[main node] (16_1)[above of=16_0] {$16$};
+        \node[main node] (18_0)[right of=16_0] {$18$};
+            \node[main node] (18_1)[above of=18_0] {$18$};
+            \node[main node] (18_2)[above of=18_1] {$18$};
+        \node[main node] (23_0)[right of=18_0] {$23$};
+        \node[main node] (28_0)[right of=23_0] {$28$};
+            \node[main node] (28_1)[above of=28_0] {$28$};
+        \node[main node] (35_0)[right of=28_0] {$35$};
+        \node[main node] (56_0)[right of=35_0] {$56$};
+            \node[main node] (56_1)[above of=56_0] {$56$};
+            \node[main node] (56_2)[above of=56_1] {$56$};
+            \node[main node] (56_3)[above of=56_2] {$56$};
+        \node[main node] (infty_0)[right of=56_0] {$\infty$};
+            \node[main node] (infty_1)[above of=infty_0]  {$\infty$};
+            \node[main node] (infty_2)[above of=infty_1]  {$\infty$};
+            \node[main node] (infty_3)[above of=infty_2]  {$\infty$};
+
+        % Vertikal
+        
+        %infty
+        \path (infty_3) edge (infty_2)
+        (infty_2) edge (infty_1)
+        (infty_1) edge (infty_0);
+        
+        %-infty
+        \path (ninfty_3) edge (ninfty_2)
+        (ninfty_2) edge (ninfty_1)
+        (ninfty_1) edge (ninfty_0);
+
+        % 11
+        \path (11_2) edge (11_1)
+              (11_1) edge (11_0);
+
+        % 14
+        \path (14_1) edge (14_0);
+
+        % 16
+        \path (16_1) edge (16_0);
+
+        % 18
+        \path (18_2) edge (18_1)
+              (18_1) edge (18_0);
+
+        % 28
+        \path (28_1) edge (28_0);
+
+        % 56
+        \path (56_3) edge (56_2)
+              (56_2) edge (56_1)
+              (56_1) edge (56_0);
+
+        % Horizontal        
+        %base
+        \path
+        (ninfty_0) edge (11_0)
+        (11_0) edge (13_0)
+        (13_0) edge (14_0)
+        (14_0) edge (16_0)
+        (16_0) edge (18_0)
+        (18_0) edge (23_0)
+        (23_0) edge (28_0)
+        (28_0) edge (35_0)
+        (35_0) edge (56_0)
+        (56_0) edge (infty_0)
+        ;
+        % level 1
+        \path
+            (ninfty_1) edge (11_1)
+            (11_1) edge (14_1)
+            (14_1) edge (16_1)
+            (16_1) edge (18_1)
+            (18_1) edge (28_1)
+            (28_1) edge (56_1)
+            (56_1) edge (infty_1)
+            ;
+
+        % level 2
+        \path
+            (ninfty_2) edge (11_2)
+            (11_2) edge (18_2)
+            (18_2) edge (56_2)
+            (56_2) edge (infty_2)
+            ;
+
+         % level 3
+        \path
+            (ninfty_3) edge (56_3)
+            (56_3) edge (infty_3)
+            ;
+        
+    \end{tikzpicture}

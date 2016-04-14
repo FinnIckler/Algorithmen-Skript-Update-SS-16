@@ -1,0 +1,10 @@
+\begin{tikzpicture}[grow via three points={
+                         one child at (-1,-1) and two children at (-1,-1) and (1,-1)}]
+\node at (0,0) (u) {u}
+     child{node (v) {v}};
+
+\node at (10,0) (x) {x}
+	child{node (y) {y}
+		child{node (z) {z}}};
+
+\end{tikzpicture}

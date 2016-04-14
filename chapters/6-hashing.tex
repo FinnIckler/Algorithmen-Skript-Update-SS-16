@@ -1,0 +1,459 @@
+% Copyright \copyright\ 2013  Simon Kalt, Jan-Peter Hohloch, Tobias Fabritz
+% Es wird die Erlaubnis gegeben, dieses Dokument unter den Bedingungen der von der Free
+% Software Foundation veröffentlichen  GNU Free
+% Documentation License (Version 1.2 oder neuer) zu kopieren, verteilen und/oder
+% zu verändern. Eine Kopie dieser Lizenz ist unter
+% http://www.gnu.org/copyleft/fdl.txt erhältlich.
+%
+% Zusätzlich muss jede Kopie/Aktualisierung wieder über die Seite
+% der Fachschaft Informatik der Uni Tübingen
+% den Studenten zur Verfügung gestellt werden
+% http://www.fsi.uni-tuebingen.de/
+
+\chapter{Hashing} 
+    \section{Definition}
+        Sei $U$ ein Universum und $S \subset U$ eine Schlüsselmenge mit $|S|<<|U|$. Elemente werden in eine Hashtafel $T$ gespeichert. 
+        Wir wollen nun die Operationen 
+        \begin{itemize}
+            \item Zugriff(a,S)
+            \item Einfügen(a,S)
+            \item Streichen(a,S)
+        \end{itemize}
+        unterstützen. Dabei definieren wir
+        \begin{itemize}
+            \item Hashtafel $T[0,1,...,m-1]$
+            \item Universum $U=[0,1,...,N-1]$
+            \item Hashfunktion $h: U \rightarrow [0,1,...,m-1]$ als 
+                $$
+                    a \mapsto h(a)
+                $$
+                wobei Element $a$ an Stelle $T[h(a)]$ liegt
+        \end{itemize}
+        
+        \subsection{Beispiel}
+            Seien $N=50$, $m=3$, $S= \{2,21\}$ sowie 
+            $$
+                h(x) = x \mod 3
+            $$
+            (Divisionsmethode). Dann ergibt sich die Hashtafel
+            
+            \begin{math}
+            	\begin{array}{c|c|c}
+            		0&1&2\\\hline
+            		2&21&-           	
+            	\end{array}
+            \end{math}
+            
+    \section{Hashing mit Verkettung}
+        Es handelt sich um eine der beiden Ideen. Die andere wäre Hashing mit offener Adressierung (s. Kapitel~\ref{sec:offeneAdressierung}). 
+        
+        \subsection{Idee}
+        		Jeder Tafeleintrag ist eine Liste. Die $i$-te Liste enthält alle $x\in S$ mit $h(x)=i$.
+        
+        \subsection{Laufzeit}
+        		WorstCase: $\LO(|S|)=\LO(n)$ im Mittel aber \textit{wesentlich} besser.
+        
+            \subsubsection{Annahmen}
+            		\begin{itemize}
+            		\item $h(x)$ kann ich $\LO(1)$ ausgerechnet werden.
+            		\item $\left|h^{-1}(i)\right|=\frac{N}{m}$,  $\forall i\in \{0,\dots , m-1\}$
+            		\item Für eine Folge von Operationen gilt: Wahrscheinlichkeit, dass das $j$-te Element in der Folge ein festes $x\in U$ ist,
+            			beträgt $\frac{1}{N}\Ra$ Operationen sind unabhängig und gleichverteilt\\
+            			Ist $x_k$ Argument der $k$-ten Operation, so gilt: $P(h(x_k)=i)=\frac{1}{m}$ (also auch Hashfuktionswerte gleichverteilt)
+            		\end{itemize}
+            
+            \subsubsection{Beweis für mittlere Kosten}
+            	\begin{definition}
+            		$$\delta_h(x,y)=\begin{cases} 	1 & x\not=y\wedge h(x)=h(y)\\
+            								0 & \text{sonst}
+            					\end{cases}$$
+            		
+            		$\delta_h(x,S)=\sum\limits_{y\in S} \delta_h(x,y)$ (Zahl der Kollisionen mit x)\\
+            		Kosten von Operationen (Zugriff/Streichen/Einfügen) $XYZ(x)=1+\delta_h(x,S)$      	
+            	\end{definition}
+            	\begin{satz}
+            		Die mittleren Kosten von $XYZ(x)$ sind $1+\beta=1+\frac{n}{m}=1+\frac{|S|}{|T|}$
+            	\end{satz}
+            	\begin{proof}
+            		Sei $h(x)=i$ und $p_{ik}$ sei die Wahrscheinlichkeit, dass Liste $i$ genau $k$ Elemenete enthält. Dann ist:
+            		$$
+            			p_{ik}={n\choose k}\left(\frac{1}{m}\right)^k\left(1-\frac{1}{m}\right)^{n-k}
+            		$$
+            		Die mittleren Kosten sind:
+            		\begin{align*}
+            			E(\text{Listenlänge}) 	&= \sum\limits_{k=0}^n p_{ik}(1+k)\\
+            								&= \sum\limits_{k=0}^n p_{ik} 
+            									+\sum\limits_{k=0}^n k{n\choose k}\left(\frac{1}{m}\right)^k\left(1-\frac{1}{m}\right)^{n-k}\\
+            			\left[\text{da } k{n\choose k}=n{n-1\choose k-1}\right]
+            								&= 1+\frac{n}{m}\sum\limits_{k=1}^n {n-1\choose k-1}
+            										\left(\frac{1}{m}\right)^{k-1}\left(1-\frac{1}{m}\right)^{n-k}\\
+            								&=1+\frac{n}{m}\left(\frac{1}{m}+\left(1-\frac{1}{m}\right)\right)^{n-1}\\
+            								&=1+\frac{n}{m} = 1+ \beta
+            		\end{align*}
+            	\end{proof}
+            	
+            
+        \subsection{Größe von $\beta$}
+            Für $\beta \leq 1$ ist $\LO(1)$ erwartet.\\
+            Für $\beta \geq \frac{1}{4}$ ist Platzausnutzung für Tafel gut.\\
+            Wobei folgende Laufzeiten gelten: Für die Tafel gilt $\LO(m)$, für die Listen gilt $\LO(n)$, 
+            also insgesamt $\LO(n+m) \sim \LO(n)$ für $m = \frac{n}{\beta}, \beta \geq \frac{1}{4}$. 
+            Jedoch können Einfügen, Striechen $\beta$ schnell schlecht werden lassen. Wird also $\beta$ zu groß oder zu klein, dann rehashen wir.
+            
+            \subsubsection{Rehashen}
+                Benutze Folge von Hashtafeln $T_0,T_1,...$ der Größe $m,2m,4m,...$\\
+                In $T_i$ der Größe $2^i \cdot m$ sei nun $\beta=1$.
+                Dann wird umgespeichert auf $T_{i+1}$, was zu $\beta = \frac{1}{2}$ führt. 
+                Bei $\beta = \frac{1}{4}$ gehe von $T_i$ zu $T_{i-1}$ was zu $\beta = \frac{1}{2}$ führt.
+                Mit amort. Analyse kann man nun zeigen, dass mittlere Laufzeit immernoch $\LO(n)$ ist. Auch mit Rehashing.
+                
+                
+        \subsection{Länge der längsten Liste}  
+            Sei $S$ zufällig aus $U$ gewählt. Also gilt
+            $$
+                \text{prob}(h(x_k)=i) = \frac{1}{m}
+            $$            
+            für $k \in S, i = [0,1,...,m-1]$. $L$ sei die Länge der längsten Liste und $l(i)$ sei die Länge der Liste $i$. Es gilt nun
+            $$
+                \text{prob}(l(i) \geq j) \leq \binom{n}{j} \cdot \left( \frac{1}{m} \right)^j
+            $$
+            und es gilt weiter
+            \begin{align*}
+                \text{prob}(\max\{ l(i) \geq j\}) &\leq \sum_{i=0}^{m}{\text{prob}(l(i) \geq j)}   \\
+                &\leq m \cdot \binom{n}{j} \cdot \left( \frac{1}{m} \right)^j \\
+                &=m \cdot \frac{n!}{j!(n-j)!m^j} \\
+                &\leq n \cdot \left( \frac{n}{m} \right)^{j-1} \cdot \frac{1}{j!}        
+            \end{align*}
+            Also ist der Erwartungswert
+            \begin{align*}
+                E(L) &= \sum_{j\geq 1} \text{prob}( \max \{l(i) \geq j\} \\
+                    &\leq \sum_{j \geq 1} \min \left(1, n \cdot \left( \frac{n}{m} \right)^{j-1} \cdot \frac{1}{j!}\right)
+            \end{align*}
+            Sei 
+            $$
+                j_0 = \min \left\{ j , n \cdot \left( \frac{n}{m} \right)^{j-1} \cdot \frac{1}{j!}  \right\} \leq \min \left\{ j , n \leq j! \right\}
+            $$
+            da $\frac{n}{m} \leq 1$. Und mit $j! \geq \left( \frac{j}{2} \right)^{\frac{j}{2}}$ folgt nun
+            $$
+                j_0 = \LO \left( \frac{\log n}{\log \log n} \right)
+            $$
+            Und damit folgt nun
+            $$
+                E(L) = \sum_{j=1}^{j_0} 1 + \sum_{j > j_0}{\frac{1}{j_0^{j-j_0}}} = \LO \left( \frac{\log n}{\log \log n} \right)
+            $$
+            Im Mittel sind also Längen $\LO(1)$ aber es gibt auch Listen der Länge $\LO \left( \frac{\log n}{\log \log n} \right)$
+            
+                    
+        
+    \section{Hashing mit offener Adressierung}
+    \label{sec:offeneAdressierung}
+        Die Idee ist, dass nur ein Element pro Tafeleintrag gespeichert wird.
+        Es wird eine Folge von Hashfunktionen $h_1, h_2, ...$ benutzt. Ist der Eintrag $T[h_1(x)]$ belegt, probiere Funktion $h_2$.
+        
+        \subsection{Beispiel}
+            Es sei 
+            $$
+                h_i(x) = (h(x) + i) \mod m
+            $$ 
+            Damit wird versucht Elemente in benachbarte Felder zu schieben, so lange bis man ein freies Feld findet. (Linear probing)
+            
+            Alternativ sei
+            $$
+                h_i(x) = (h(x) + c_1\cdot i + c_2 \cdot i^2) \mod m
+            $$
+            (quadratic probing). Hier wird weiter gesprungen; man verhindert so, in einem ''Block'' stecken zu bleiben.
+            
+            
+    \section{Perfektes Hashing}
+        \subsection{Idee}
+            Die Hashfunktion sollte injektiv sein, dann entstehen keine Kollisionen
+            
+        \subsection{Theorie}
+            S sei fest. Dann geht man in 2 Stufen vor
+            \begin{enumerate}
+                \item Stufe: Hashing mit Verkettung. Ergibt Listen wie in vorherigem Kapitel beschrieben
+                \item Stufe: für jede Liste einzelne eigene injektive Hashfunktion. Jede Liste wird also zu einer Hashtafel.
+            \end{enumerate}
+            
+            \subsubsection{Wahl einer injektiven Hashfunktion}
+                Sei $U= \{ 0,...,N-1 \}$, $h_k = \{0,...,N-1 \} \rightarrow \{ 0,...,m-1 \}$ sowie $k \in \{1,...,N-1 \}$ mit
+                $$
+                    h_k(x) = ((k \cdot x) \mod N) \mod m
+                $$
+                Wähle $h_k$ injektiv, wobei Injektivität wie folgt gemessen wird
+                $$
+                    b_{ik} = \abs{\{ x \in S | h_k(x) = i \} } 
+                $$
+                für $1 \leq k \leq N-1, 0 \leq i \leq m-1$. Dann ist 
+                $$
+                    b_{ik}(b_{ik}-1) = \abs{ \{ \underbrace{(x,y)}_{\text{Paare in Konflikt}} \in S^2 | x \neq y, h_k(x) = h_k(y) = i \} }
+                $$
+                und die Zahl der Paare, die für $h_k$ insgesamt in Konflikt stehen ist gegeben durch
+                $$
+                    B_k = \sum_{i=0}^{m-1}{b_{ik}(b_{ik}-1)}
+                $$
+                Dann gilt
+                $$
+                    B_k < 2 \Leftrightarrow h_k|s \text{ injektiv}
+                $$
+                Als Abschätzung sei $\abs{S} = n)$ und $b_{ik} = \frac{n}{m}$ für alle i ($S$ gleichmäßig verteilt), dann folgt
+                \begin{align*}
+                    B_k = \sum_{i=0}^{m-1}{\frac{n}{m} \cdot \left(\frac{n}{m}-1 \right)} = n \cdot \left( \frac{n}{m}-1 \right)
+                \end{align*}
+                Falls dann gilt $m \geq n^2$, dann folgt $B_k < 2$
+                
+                \begin{lemma}
+                    Mit vorherigen Voraussetzungen und $N$ Primzahl gilt
+                    $$
+                        \sum_{k=1}^{N-1}{\sum_{i=0}^{m-1}{b_{ik}(b_{ik}-1)}} \leq 2 \cdot \frac{n\cdot (n-1)}{m}\cdot (N-1)
+                    $$
+                \end{lemma}
+                Beweis in Mehlkorn I
+                \begin{bemerkung}
+                    Die Durchschnittliche Anzahl der Konflikte ist $< \frac{2n(n-1)}{m}$. Also folgt, dass für $m > n(n-1)$ die durchschnittliche Anzahl kleiner als 2 ist. Es existiert also ein $k$, so dass die Funktion injektiv wird.
+                \end{bemerkung}
+                Nun folgt
+                \begin{korollar}
+                    Mit obigen Voraussetzungen gilt
+                    \begin{enumerate}
+                        \item $\exists k \in \{1,...,N-1 \} : B_k \leq 2\cdot \frac{n(n-1)}{m}$
+                        \item Sei $A= \{k | B_k > \frac{4(n(n-1))}{m} \}$ und sei $\abs{A} > \frac{N-1}{2}$, dann gilt
+                            $$
+                                \sum_{k}{B_k} \geq \sum_{A}{B_k} \geq \frac{N-1}{2} \cdot \frac{4(n(n-1))}{m} = 2\cdot \frac{n(n-1)}{m} \cdot (N-1)
+                            $$
+                            Dies ist ein Widerspruch. Also sind mindestens $\frac{N-1}{2}$ aller $h_k$ haben $B_k \leq \frac{4(n(n-1))}{m}$
+                    \end{enumerate}
+                \end{korollar}
+                Es folgt ebenfalls
+                \begin{korollar}
+                    Mit obigen Voraussetzungen gilt
+                    \begin{enumerate}
+                        \item Ein $k \in \{1,...,N-1 \}$ mit $B_k \leq  2\cdot \frac{n(n-1)}{m}$ kann in Zeit $\LO(m+N\cdot n)$ berechnet werden. Teste dafür für alle $k$ wie viele Konflikte es gibt. Das geht jeweils in $\LO(n)$. Der Aufbau des Feldes kostet $\LO(m)$
+                        \item Sei $m = n(n-1)+1$. Dann gibt es ein k mit $h_k|S$ injektiv. Wobei $k$ in Zeit $\LO(n^2+N\cdot n)$ gefunden werden kann.
+                        \item Sei $m= 2n(n-1)+1$. Dann ist die Hälfte der $h_k|S$ injektiv. Ein injektives $h_k|S$ kann randomisiert in Zeit $\LO(n^2)$ gefunden werden.
+                        \item Sei $m=n$. Ein $k$ mit $B_k \leq 2(n-1)$ kann in Zeit $\LO(n\cdot N)$ gefunden werden.
+                        \item Sei $m=n$. Randomisiert kann ein $k$ mit $B_k \leq 4(n-1)$ in Zeit $\LO(n)$ gefunden werden.
+                    \end{enumerate}
+                \end{korollar}
+                
+            \subsection{Realisierung}
+                \subsubsection{1. Stufe}
+                    Bei $m=n$ gibt es $h_k$, so dass Länge der Listen $\LO(\sqrt{n})$ ist, da $B_k \leq \LO(n)$
+                    
+                \subsubsection{2. Stufe}
+                    Wende Hashing auf jede Liste getrennt an. Sei $\abs{S} = n = m$. Dann
+                    \begin{enumerate}
+                        \item Wähle $k$ mit $B_k \leq 4(n-1) < 4n$. Sei 
+                            $$
+                                h_k(x) = (kx \mod N) \mod m
+                            $$
+                        \item Sei $w_i = \{ x \in S | h_k(x) = i \}$, $b_i = \abs{w_i}$ und sei $m_i = 2 \cdot b_i \cdot (b_i -1) +1 $. Wähle $k_i$ mit 
+                            $$
+                                h_{k_i} = (k_ix \mod N) \mod m_i
+                            $$
+                            so dass $h_{k_i}|w_i$ injektiv.
+                        \item Sei $s_i = \sum_{j<i}{m_j}$. Speichere $x$ in $T[s_i + j]$ wobei 
+                            $$
+                                i = (kx \mod N) \mod m, j = (k_ix \mod N) \mod m
+                            $$
+                    \end{enumerate}
+                    \subsubsection{Beispiel}
+                    	$S = \{ 5, 6, 10, 12, 17, 21, 23, 42, 59\},\ m = |S|,\ k = 42$\\\\
+					\begin{math}
+						m=10:
+						\begin{array}{c|c|c|c|c|c|c|c|c|c}
+							0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9\\\hline
+							21&   & 1 & 5 &   & 6 &   & 23&   &10\\
+							  &   &   &12 &   &59 &   &   &   &17\\
+							  &   &   &42 &   &   &   &   &   &
+						\end{array}
+						\Rightarrow \text{ Kollision in 3,5 und 9}
+					\end{math}\\
+					$b_3=3 \Rightarrow m_3=2\cdot 3\cdot 2 +1 = 13 \Rightarrow h_{k_3}= (k_3 x \mod 127)\mod 13$\\
+					$b_5=2 \Rightarrow m_5=2\cdot 2\cdot1 +1 =5 \Rightarrow h_{k_5}= (k_5 x \mod 127)\mod 5$\\
+					$b_9=2 \Rightarrow m_9=5 \Rightarrow h_{k_9}= (k_9 x \mod 127)\mod 5$\\\\
+					Wähle $k_3=k_5=k_9=1$, da dann alle Abb. injektiv:\\\\
+					\begin{math}
+						\begin{array}{c|c|c|c|c|c|c|c|c|c}
+							0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9\\\hline
+							21&   & 1 & 
+							\begin{array}{|c|c|c|}
+								3 & 5 & 12\\\hline
+								42& 5 & 12
+							\end{array}
+									 &   & 
+									\begin{array}{|c|c|}
+										 1&4\\\hline
+										 6&59				 
+									\end{array}&   & 23&   &
+									\begin{array}{|c|c|}
+										0&2\\\hline
+										10&17				
+									\end{array}
+						\end{array}
+					\end{math}
+                    
+                \subsubsection{Platzbedarf}
+                    Es gilt 
+                    $$
+                        m = \sum_{i=0}^{n-1}{m_i} = \sum_{i=0}^{n-1}{2b_i(b_i-1)+1}= n + 2 \underbrace{B_k}_{\leq 4n} \leq 9n = \LO(n)
+                    $$
+                    
+                \subsubsection{Laufzeit}
+                    \begin{enumerate}
+                        \item $\LO(n)$
+                        \item $3\sum_i{\LO(w_i)} = \LO(n)$
+                    \end{enumerate}
+                    
+                \subsubsection{Zusammenfassung}
+                    \begin{satz}
+                        Mit obigen Voraussetzungen kann in linearer Zeit/Platz eine perfekte Hashtafel gebaut werden. Wobei die Hashfunktionen eine Zugriffszeit von $\LO(1)$ haben. (randomisiert)
+                    \end{satz}
+                    
+            \subsection{Dynamischer Fall}
+                Starte mit leerer Hashtafel und füge $xs_1,xs_2,...$ ein. Bei i-ter Iteration liegen $xs_1,xs_2,...,xs_i$ vor. Es können folgende Probleme auftreten
+                \begin{itemize}
+                    \item Auf Stufe 1 zu viele Konflikte. Daraus folgt, dass $B_k$ zu groß wird.
+                    \item Auf Stufe 2 kann es passieren, dass die Hahsfunktion nicht mehr injektiv ist oder die Tafeln zu klein sind.
+                \end{itemize}
+                Der Tafelaufbau ist in \autoref{alg:perfect-hashing-init} beschrieben.
+                \begin{algorithm}
+                    \capstart
+                    \caption{Aufbau von Hashtafel(n) mit $n$ Werten aus $xs$ für gegebene $N, h_k, b_{i,k}$}
+                    \label{alg:perfect-hashing-init}
+                    \begin{algorithmic}
+                        \State $B \gets 0$
+                        \State $w \gets \{w_0, \dots, w_{n-1}\}$
+                        \State $k \gets \{k_0, \dots, k_{N-1}\}$
+                        \State $xs \gets \{xs_0, \dots, xs_{n-1}\}$
+                        \Function{tafelaufbau}{}
+                            \For{$i \gets 0 \malgto n - 1$}
+                                \State $T_i \gets $ \Call{newTable}{{}}
+                                \State $k_i \gets $ \Call{random}{$0, N-1$}
+                            \EndFor
+                            \State $m \gets n$
+                            \For{$i \gets 0 \malgto n - 1$}
+                                \State \Call{insert}{$xs_i, k_i, n, N$}
+                            \EndFor
+                        \EndFunction
+                        \Statex
+                        \Function{insert}{$x, n$}
+                            \State $i \gets (k_x \bmod N) \bmod n$
+                            \State $j \gets (k_i\cdot x \bmod N) \bmod m_i$ % von h_k: {1, ..., N-1} -> {1, ..., ,-1}
+                            \State $w_i \gets w_i \cup \{x\}$
+                            \State $B \gets B + 2 b_i$
+                            \State $b_i \gets b_i + 1$
+                            \If{$B > 4(n-1)$}
+                                 \State \Call{tafelaufbau}{{}}
+                            \Else
+                                \If{\Call{free}{$T[s_i + j]$}}
+                                    \State \Call{hashInsert}{$T[s_i + j], x$}
+                                \Else \Comment{$h_k$ nicht injektiv}
+                                    \If{$m_i < 2b_i \cdot (b_i - 1) + 1$}
+                                        \State $\var{repeat} \gets \True$
+                                        \While{repeat}
+                                            \State \Call{enlargeArea}{$w_i$}
+                                            \State finde neue Funktion für $w_i$ % ??
+                                            \State $k_i \gets $ \Call{random}{$0, N-1$}
+                                            \State \Call{deleteArea}{$T[s_i, s_i + m_i]$}
+                                            \For{$x \in w_i$}
+                                                \State $j \gets (k_i \cdot x \bmod N) \bmod m_i$
+                                                \If{\Call{free}{$T[s_i + j]$}}
+                                                    \State \Call{hashInsert}{$T[s_i + j], x$}
+                                                    \State $\var{repeat} \gets \False$
+                                                \Else
+                                                    \State $\var{repeat} \gets \True$
+                                                    \State \textbf{break}
+                                                \EndIf
+                                            \EndFor
+                                        \EndWhile
+                                    \EndIf
+                                \EndIf
+                            \EndIf
+                        \EndFunction
+                        \Statex
+                        \Function{enlargeArea}{$w_i$}
+                            \State $m_i \gets 4b_i(b_i-1)+1$
+                            \State $s_i \gets m$
+                            \State $m \gets m + m_i$
+                            \State $T[s_i,s_i + m_i]$ ist reserviert für $w_i$
+                        \EndFunction
+                    \end{algorithmic}
+                \end{algorithm}
+
+                    % \begin{verbatim}
+                    %     Tafelaufbau()
+                    %     for i <- 0 to n-1 do
+                    %         Initialisierung der Tafeln und wähle k zufällig
+                    %     od
+                    %     m <- n, B <- 0
+                    %     for l = 0 to n - 1 do
+                    %         Einfügen(x_l)
+                    %     od
+                    % \end{verbatim}
+                    % Wobei
+                    % \begin{verbatim}
+                    %     Einfügen(x)
+                    %     i <- (kx mod N) mod n, j <-  (k_i * x mod N) mod m_i
+                    %     w_i <- w_i UNION {x}, B <- B + 2 b_i, b_i <- b_i +1
+                        
+                    %     if B > 4(n-1) 
+                    %     then Tafelaufbau()
+                    %     else    if T[s_i + j] frei
+                    %             then speichere x in T[s_i + j]
+                    %             else (h_k hier nicht injektiv)
+                    %                 if m_i < 2b_i(b_i-1)+1 
+                    %                 then vergrößere Bereich für w_i  
+                    %                      versuche nun wieder eine neue Funktion für w_i zu finden
+                    %                      Wähle k_i zufällig
+                    %                      Lösche Bereich T[s_i, s_i + m_i]
+                    %                      for all x \in w_i do
+                    %                          j <- ((k_i x) mod N) mod m_i
+                    %                          if T[s_i + j] frei
+                    %                          then speichere x dort
+                    %                          else repeat
+                    %                      od
+                    % \end{verbatim}
+                    % und
+                    % \begin{verbatim}
+                    %     Vergrößere Bereich:
+                    %     m_i <- 4b_i(b_i-1)+1
+                    %     s_i <- m
+                    %     m <- m + m_i
+                    %     T[s_i,s_i + m_i] ist reserviert für w_i
+                    % \end{verbatim}
+
+                    
+                    
+                \subsubsection{Laufzeit}        
+                    Tafelaufbau passiert wenn $B < 4(n-1)$. Für zufälliges $k$ gilt nach Lemma
+                    $$
+                        B_k = \sum{b_{ik}(b_{ik}-1)} \leq 4(n-1)
+                    $$
+                    mit Wahrscheinlichkeit $k \geq 0.5$. Um ein geeignetes k zu finden brauchen wir also $\leq 2$ Versuche im Mittel. Damit ergibt sich insgesamt eine Laufzeit von
+                    $$
+                        \LO(n) + \LO(\sum{(b_{ik})^2}) = \LO(n) + \LO(B_k) = \LO(n)
+                    $$
+                    
+                \subsubsection{Platzbedarf}
+                    $m_i$ wächst immer. Werte sind $m_{i_1},m_{i_2},...$. Dabei gilt $m_{i_{p+1}} \geq 2 \cdot m_{i_p} + 1$. Nun folgt
+                    $$
+                        \sum_{p \geq 1}{m_{i_p}} \leq \sum_{p \geq 0}{\frac{m_{ik}}{2^p}} \leq m_{ik}\cdot \left(1+\frac{1}{2}+\frac{1}{4}+...\right) \leq 2m_{ik}
+                    $$
+                    Das ergibt einen Gesamtplatz von
+                    $$
+                        \sum_{i}{2m_{ik}} \leq \sum_{i}{2(4b_{ik}(b_{ik}-1)+1)} \leq 8 \cdot 4(n-1) + 2n
+ \leq 34n
+                    $$
+                    
+                    \begin{satz}
+                        Sei N Primzahl, $S \subseteq U$, $\abs{S}=n$, $\abs{U}=N$. Eine perfekte Hashtafel der Größe $\LO(n)$ kann online in $\LO(n)$ erwarteter Zeit berechnet werden mit Zugriffszeit $\LO(1)$
+                    \end{satz}
+                    
+                    
+                    
+                    
+            
+            
+        
+    

@@ -1,0 +1,14 @@
+\begin{center}
+            \begin{tikzpicture}
+                \tikzstyle{bplus}=[rectangle split, rectangle split horizontal,
+                    rectangle split ignore empty parts,draw]
+                \tikzstyle{every node}=[bplus]
+                \tikzstyle{level 1}=[sibling distance=60mm]
+                \tikzstyle{level 2}=[sibling distance=15mm]
+                \node {B \nodepart{two} D} [->]
+                    child {node {A \nodepart{two} $\square$}}
+                    child {node {C \nodepart{two} $\square$}}
+                    child {node {I \nodepart{two} K}}
+                ;
+            \end{tikzpicture}
+        \end{center} 

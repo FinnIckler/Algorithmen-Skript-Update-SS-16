@@ -1,0 +1,191 @@
+% Copyright \copyright\ 2010  Volodymyr Piven und Alexander Peltzer.
+% Es wird die Erlaubnis gegeben, dieses Dokument unter den Bedingungen der von der Free
+% Software Foundation veröffentlichen  GNU Free
+% Documentation License (Version 1.2 oder neuer) zu kopieren, verteilen und/oder
+% zu verändern. Eine Kopie dieser Lizenz ist unter
+% http://www.gnu.org/copyleft/fdl.txt erhältlich.
+%
+% Copyright der Aktualisierung und Überarbeitung \copyright\ 2013  Simon Kalt, Jan-Peter Hohloch, Tobias Fabritz
+% Es wird die Erlaubnis gegeben, dieses Dokument unter den Bedingungen der von der Free
+% Software Foundation veröffentlichen  GNU Free
+% Documentation License (Version 1.2 oder neuer) zu kopieren, verteilen und/oder
+% zu verändern. Eine Kopie dieser Lizenz ist unter
+% http://www.gnu.org/copyleft/fdl.txt erhältlich.
+%
+% Zusätzlich muss jede Kopie/Aktualisierung wieder über die Seite
+% der Fachschaft Informatik der Uni Tübingen
+% den Studenten zur Verfügung gestellt werden
+% http://www.fsi.uni-tuebingen.de/
+\chapter{Rekursionen}
+\begin{itemize}
+\item
+Merge-Sort: 
+$$
+T(n) = \underbrace{2 \cdot T(\frac{n}{2})}_{\text{2 Teilprobleme}} + \underbrace{n}_{\text{Aufwand des Aufteilens}} \text{ und } T(1)=1
+$$
+\item 
+Schaltkreise: $C(n) \leq C(\frac{2}{3}n) + \frac{n}{3}$ 
+\item
+parallele Algorithmen: $T(n) = T(\frac{9}{10}) + \LO(\log n)$ 
+\item
+Selection: $T(n) \leq \frac{2}{n} \cdot \sum \limits_{k=\frac{n}{2}}^{n-1} T(k) + \LO(n)$ 
+\end{itemize}
+
+\section{3 Methoden zur Berechnung}
+
+\subsection{Schätzen und Beweisen}
+\begin{itemize}
+\item
+$T(n) = 2 \cdot T\left( \frac{n}{2}\right) + n$ \\
+Schätzen: $T(n) = \LO(n \log n)$ \\
+Beweisen: Behauptung $T(n) \leq c \cdot n \log n$ für c groß genug. \\ %Warum +1?
+Induktion: \\
+Induktionsanfang: 
+$$
+T(1) = 1\ \checkmark
+$$ 
+Induktionsschritt: \\
+Es gilt 
+$$\begin{aligned}
+T(n) &\leq 2 \cdot c \cdot \frac{n}{2} \cdot \log \left(\frac{n}{2}\right) + n \\
+&= 2 \cdot c \cdot \frac{n}{2} \cdot (\log n - \log 2) + n \\
+&= c \cdot n \cdot ((\log n) -1) + n \leq c \cdot n \log n 
+\end{aligned} $$
+für $c \geq 1$
+\item
+$C(n) \leq C ( \frac{2}{3} n) + \frac{n}{3}$ \\
+Schätzen: $C(n) = \LO(n)$
+\begin{proof}
+$C(n) \leq d \cdot n$ für konstante d 
+\[C(1) = 1 \leq d \text{ für }d \geq 1\]
+$$C(n) \leq d \cdot \frac{2}{3} n + \frac{n}{3} \leq d(\frac{2}{3}n + \frac{n}{3})  \text{ für } d \geq 1 =d \cdot n$$ \end{proof}
+
+\item
+$A(n) = 2 \cdot A(\frac{n}{2}) + \sqrt{n}$ \\
+Schätzen:$A(n) = \LO(n)$ \\
+Versuchter Beweis:\\
+$A(n) \leq c \cdot n$ für c groß.\\
+$A(1) = 1 $ \\
+$A(n) = 2 \cdot c \cdot \frac{n}{2} + \sqrt{n} \nleq c \cdot n$ so nicht!
+\end{itemize}  
+
+\subsection{Ausrechnen} 
+\begin{align*}
+A(n) &= 2 \cdot A\left(\frac{n}{2}\right) + \sqrt{n} \\
+&= 2\cdot \left( 2 \cdot A\left(\frac{n}{4}\right) + \sqrt{\frac{n}{2}} \right) + \sqrt{n} \\
+&= 4 \cdot A\left(\frac{n}{4}\right) + 2 \cdot \sqrt{\frac{n}{2}} + \sqrt{n} \\
+&= 8 \cdot A\left(\frac{n}{8}\right) + 4 \sqrt{\frac{n}{4}} + 2 \sqrt{\frac{n}{2}} + \sqrt{n} \\
+&\ldots \\
+&= 2^i \cdot A \left( \frac{n}{2^i}\right) + \sum \limits_{j=0}^{i-1} 2^j \cdot \sqrt{\frac{n}{2^j}}  \ \tag{i-ter Schritt}\\
+&= 2^i \cdot A\left(\frac{n}{2^i}\right) + \sqrt{n} \cdot \sum \limits_{j=0}^{i-1} 2^{\frac{j}{2}} 
+\end{align*}
+Schritt ist durch Induktion zu zeigen:
+\begin{align*}
+&= 2^i \cdot \left(2\cdot A\left(\frac{n}{2^{i+1}}\right) +\sqrt{\frac{1}{2^i}}\right) 
++ \sqrt{n} \cdot \sum \limits_{j=0}^{i-1} 2^{\frac{j}{2}}\\
+&=2^{i+1}\cdot A\left(\frac{n}{2^{i+1}}\right) + \sqrt{n} \cdot \sum \limits_{j=0}^{i} 2^{\frac{j}{2}} \ \checkmark
+\end{align*}
+
+Sei $i = \log n$, da dies der maximale Fall ist, wenn $n$ eine Zweierpotenz: 
+\begin{align*}
+&2^{\log n} \cdot A(1) + \sqrt{n} \sum \limits_{j=0}^{\log n-1} \sqrt{2}^j \\
+&= n + \sqrt{n} \cdot \LO(\sqrt{n}) \\
+&= \LO(n)
+\end{align*}
+
+\subsection{Master Theorem}
+Löse $T(n) = a \cdot T(\frac{n}{b}) + f(n) \ \ (a \geq 1,\ b > 1,\  f(n) \geq 0)$ \\
+Beispielsweise für Merge-Sort: $a=b=2, f(n) = n$ \\
+
+\begin{satz}
+Sei $a \geq 1, b > 1$ konstant, $f(n) , T(n)$ nicht negativ mit 
+$$
+T(n) = a \cdot T \left(\frac{n}{b}\right) + f(n)
+$$
+wobei $\frac{n}{b}$ für $\lceil \frac{n}{b} \rceil$ oder $\lfloor \frac{n}{b} \rfloor$ steht. Dann gelten
+\begin{enumerate}[1.]
+\item Für $f(n) = O\left(n^{\log_b a - \epsilon}\right)\ , \epsilon > 0 \Rightarrow T(n) = \Theta(n^{\log_b a})$ 
+\item Für $f(n) = \Theta \left(n^{\log_b a}\right) \Rightarrow T(n) = \Theta (n^{\log_b a} \cdot \log n)$ 
+\item Für $f(n) = \Omega \left(n^{\log_b a + \epsilon}\right)\ , \epsilon > 0$ und $a \cdot f(\frac{n}{b}) \leq c \cdot f(n)$\\
+für $c < 1$ und $n$ genügend groß, so ist: $T(n) = \Theta(f(n))$
+\end{enumerate}
+\end{satz}
+
+Beispiel:
+\begin{itemize}
+\item
+$T(n) = 9 \cdot T(\frac{n}{3}) +n$, $a=9, b=3, f(n) = n$ \\
+$\log_3 9 = 2 \Ra $Fall 1 $\Ra T(n) = \Theta (n^2)$
+\item
+$T(n) = T(\frac{n}{2}) +1$, $a=1, b=2, f(n) = 1$ \\
+$\log_b a= \log_2 1  = 0 \Ra $Fall 2 $\Ra T(n) = \Theta(\log n)$
+\item $T(n) = 4 \cdot T(\frac{n}{2}) + n^4\\
+f(n) = n^4 \geq \Theta(n^{2+2}) \checkmark\\
+\frac{n^4}{4} = 4 \cdot (\frac{n}{2})^4 \leq c \cdot n^4 \checkmark$ Fall 3\\
+$\Rightarrow T(n) = \Theta(n^4)$
+\item
+$T(n) = 2 \cdot T(\frac{n}{2}) + n \log n$, $a=2, b=2, f(n) = n \log n $ \\
+$log_2 2 = 1$ \\
+$n \log n < n^{1+\epsilon} \Ra $ nicht anwendbar! (da \q{zwischen} Fall 2 und 3!)
+\end{itemize}
+$T(n) = a \cdot T(\frac{n}{b}) + f(n)$, $a\geq 1,\ b > 1,\ f(n) \geq 0$ \\
+\emph{Beweis}:\\
+Annahme: $n=b^i, i \in \N$ \\
+das heißt, Teilprobleme haben Größe $b^i, b^{i-1}, \ldots, b, 1$ \\
+\begin{lemma} 
+Sei $a,b \geq 1, f(n) \geq 0, n=b^i, i \in \N$ mit 
+$$
+T(n) = 
+\begin{cases} 
+\Theta (1) 					& \text{\normalfont für } n=1 \\ 
+a \cdot T(\frac{n}{b}) + f(n) 	& \text{\normalfont für } n=b^i 
+\end{cases}
+$$
+
+Dann gilt $T(n) = \Theta (n^{\log_b a}) + \sum \limits_{j=1}^{(\log_b n)-1} a^j f(\frac{n}{b^j})$
+
+\begin{proof}
+\begin{align*} 
+T\left(n\right) &= f\left(n\right) + a \cdot T\left(\frac{n}{b}\right) \\
+&= f\left(n\right) + a \left(f\left(\frac{n}{b}\right) + a \cdot T\left( \frac{n}{b^2}\right)\right) \\
+&= f\left(n\right) + a \cdot f\left(\frac{n}{b}\right) + a^2 \cdot T\left(\frac{n}{b^2}\right) \\
+&= f\left(n\right) + a \cdot f\left(\frac{n}{b}\right) 
++ a^2 \cdot T\left(\frac{n}{b^2}\right) + a^3 \cdot T\left(\frac{n}{b^3}\right) \\
+&= \dots \\
+&= f\left(n\right) + a \cdot f\left(\frac{n}{b}\right) + a^2 \cdot f\left(\frac{n}{b^2}\right) 
++ \ldots + a^i T\left(\frac{n}{b^i}\right) \\
+&= f\left(n\right) + a \cdot f\left(\frac{n}{b}\right) + \ldots + \underbrace{a^{\log_b n} 
+\cdot T\left(1\right)}_{=  \Theta\left(n^{\log_b a}\right)} \\
+&= \Theta\left(n^{\log_b a}\right) 
++ \sum \limits_{j=0}^{\left(\log_b n\right)-1} a^j f\left(\frac{n}{b^j}\right)
+\end{align*}
+\end{proof}
+\end{lemma}
+\begin{figure}[htp]
+\centering
+\input{diagramme/rekursionsbaum}
+\caption{Rekursionsbaum} % Bessere Caption?
+\label{diag1:recursion-tree}
+\end{figure}
+3 Fälle, je nachdem wie groß $f(n)$ ist. \\
+\textit{Anschaulich:}\\
+Entweder dominiert die Wurzel (Fall 3) oder das Blattlevel (Fall 1) 
+oder es fallen alle Terme gleich ins Gewicht (Fall 2, $\log_b n$ Terme) 
+\begin{lemma}
+Sei $a, b \geq 1$, $f(n)$ definiert auf Potenzen von b und sei $g(n) = \sum \limits_{j=0}^{\log_b n -1} a^j f\left(\frac{n}{b^j}\right)$
+Ist $f(n) = \LO\left(n^{\log_b a - \epsilon}\right)$, $\epsilon \geq 0$, so ist $g(n) = \LO\left(n^{\log_b a}\right)$.
+
+\begin{proof}
+Es gilt:
+\begin{align*}
+f\left(\frac{n}{b^j}\right) &= \LO \left(\left(\frac{n}{b^j}\right)^{\log_b a -\epsilon}\right) \\
+\Ra g(n) &= \LO \left(\sum \limits_{j = 0}^{\log_b n-1} a^j \cdot \left(\frac{n}{b^j}\right)^{\log_b a - \epsilon} \right) \\
+&= \LO \left( n^{\log_b a - \epsilon} 
+		\cdot \sum \limits_{j=0}^{\log_b n-1} \left(\frac{a \cdot b^\epsilon}{b^{\log_b a}}\right)^j \right) \\
+&= \LO \left( n^{\log_b a - \epsilon} \cdot \sum \limits_{j=0}^{\log_b n-1} \left(b^\epsilon\right)^j \right) \tag{geom. Reihe}\\
+&= \LO \left( n^{\log_b a - \epsilon} \cdot \frac{\left(b^\epsilon\right)^{\log_b n -1}}{b^\epsilon -1}\right)\\
+&= \LO \left( n^{\log_b a - \epsilon} \cdot \underbrace{\frac{n^{\epsilon -1}}{b^\epsilon -1}}_{ \in\LO( n^\epsilon) }\right)\\ 
+&= \LO \left( n^{\log_b a - \epsilon} \cdot n^\epsilon \right) = \LO \left(n^{\log_b a} \right)
+\end{align*}    
+\end{proof}
+\end{lemma}

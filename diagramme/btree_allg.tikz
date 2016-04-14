@@ -1,0 +1,17 @@
+       \begin{center}
+            \begin{tikzpicture}[scale=1]
+                \tikzstyle{bplus}=[rectangle split, rectangle split horizontal,
+                    rectangle split ignore empty parts,rectangle split parts=5,draw,style={transform shape}]
+                \tikzstyle{every node}=[bplus]
+                \tikzstyle{level 1}=[sibling distance=20mm]
+                \tikzstyle{level 2}=[sibling distance=15mm]
+                \node {$s_ 1$ \nodepart{two} $s_2$ \nodepart{three} ... \nodepart{four} $s_{i-1}$ \nodepart{five} $s_i$} [->]
+                    child {node {$T_1$}}
+                    child {node {$T_2$}}
+                    child {node {$...$}}
+                    child {node {$...$}}
+                    child {node {$T_{i-1}$}}
+                    child {node {$T_i$}}
+                ;
+            \end{tikzpicture}
+        \end{center} 

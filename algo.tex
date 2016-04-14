@@ -1,0 +1,208 @@
+ % Copyright \copyright\ 2010  Volodymyr Piven und Alexander Peltzer.
+% Es wird die Erlaubnis gegeben, dieses Dokument unter den Bedingungen der von der Free
+% Software Foundation veröffentlichen  GNU Free
+% Documentation License (Version 1.2 oder neuer) zu kopieren, verteilen und/oder
+% zu verändern. Eine Kopie dieser Lizenz ist unter
+% http://www.gnu.org/copyleft/fdl.txt erhältlich.
+%
+% Copyright der Aktualisierung und Überarbeitung \copyright\ 2013  Simon Kalt, Jan-Peter Hohloch, Tobias Fabritz
+% Es wird die Erlaubnis gegeben, dieses Dokument unter den Bedingungen der von der Free
+% Software Foundation veröffentlichen  GNU Free
+% Documentation License (Version 1.2 oder neuer) zu kopieren, verteilen und/oder
+% zu verändern. Eine Kopie dieser Lizenz ist unter
+% http://www.gnu.org/copyleft/fdl.txt erhältlich.
+%
+% Zusätzlich muss jede Kopie/Aktualisierung wieder über die Seite
+% der Fachschaft Informatik der Uni Tübingen
+% den Studenten zur Verfügung gestellt werden
+% http://www.fsi.uni-tuebingen.de/
+
+\documentclass[a4paper, 10pt]{scrreprt}
+%Finn ; Ich verwende LuaTeX, wegen Fonts, wenn man was pdfLaTeX verwendet, dann standard Times 
+\usepackage{ifluatex}
+\ifluatex
+\usepackage{fontspec}
+\setmainfont{Roboto}[BoldFont = Source Code Pro]
+\renewcommand{\B}{\mathbb{B}} % |B
+\else
+\usepackage{times}
+\newcommand{\B}{\mathbb{B}} % |B
+\fi
+\usepackage{etex}
+\usepackage{ngerman}
+\usepackage{epsfig}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{alltt}
+\usepackage{enumerate}
+\usepackage{color}
+\usepackage{cancel}	%Kürzen in Brüchen
+\usepackage{remreset} % Section-Zähler soll nicht zurückgesetzt werden
+\usepackage{tikz}
+\usetikzlibrary{trees,arrows,automata,calc,shapes,chains,positioning,decorations}
+\usepackage{pgf}
+\let\SavedRightarrow=\Rightarrow
+  \usepackage{marvosym}
+\let\Rightarrow=\SavedRightarrow
+\usepackage{makeidx}
+\usepackage[all]{xy}
+
+\renewcommand{\glqq}{„}
+\renewcommand{\grqq}{“}
+\newcommand{\q}[1]{\glqq#1\grqq}
+
+\newcommand{\LO}{\ensuremath{\mathcal{O}}}
+\newcommand{\set}[1]{\{#1\}}
+
+
+% Bäume
+\usepackage{qtree}
+\renewcommand{\qroofpadding}{0.6cm} % Makes roofs with math-labels work
+\qroofx=2
+\qroofy=1
+
+\usepackage{cancel}
+\usepackage{wasysym}
+\usepackage[linktocpage,colorlinks=true,
+           filecolor=rltgreen,
+           linkcolor=rltred,
+           pdftitle={Algorithmen},
+           pdfsubject={Algorithmen},
+           pdfkeywords={Algorithmen, skript, Kaufmann},
+           pdfproducer={luaLaTeX},
+           pagebackref,
+           pdfpagemode=None,
+           bookmarksopen=true]
+           {hyperref}
+% Verlinkt Abbildungen etc. am oberen Rand
+\usepackage{hypcap}
+
+%%%%%%%%%%%%% Quellcode einbinden%%%%%%%%%%%%%%
+\usepackage{listings}
+% \lstset{numbers=left, numberstyle=\tiny, numbersep=5pt}
+%\lstset{language=C}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode} %Pseudocode
+\makeatletter
+\renewcommand{\ALG@name}{Algorithmus}
+\makeatother
+\renewcommand{\listalgorithmname}{Algorithmenverzeichnis}
+\algrenewcommand{\algorithmiccomment}[1]{\hfill// #1}
+
+% Autoref-Namen
+\def\algorithmautorefname{Algorithmus}
+\def\figureautorefname{Abbildung}
+
+
+
+% \var{variable} sets a variable in italics in mathmode
+\newcommand{\var}[1]{\ensuremath{\text{\emph{#1}}}}
+\newcommand{\True}{\ensuremath{\text{\textbf{true}}}}
+\newcommand{\False}{\ensuremath{\text{\textbf{false}}}}
+\newcommand{\algto}{\textbf{to}}
+\newcommand{\malgto}{\ensuremath{\text{ \algto{} }}}
+
+%
+\renewcommand{\labelitemi}{\guillemotright}
+\renewcommand{\implies}{\Rightarrow} % better =>
+\renewcommand{\iff}{\Leftrightarrow} % better <=>
+\newcommand{\define}[2]{\emph{#1}: #2}
+
+%\usepackage{txfonts}
+\usepackage{scrtime}
+\definecolor{rltred}{rgb}{0.75,0,0}
+\definecolor{rltgreen}{rgb}{0,0.5,0}
+\definecolor{rltblue}{rgb}{0,0,0.75}
+
+\input{mathdef}
+\input{skriptdef}
+
+% Einige Anstrengungen, um den § vor die Section-Nummer zu stellen
+% \renewcommand{\thesection} allein führt zu einem Konflikt mit ntheorem-hyper
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\makeatletter
+%\def\@seccntformat#1{\@ifundefined{#1@cntformat}%
+%{\csname the#1\endcsname\quad}% default
+%{\csname #1@cntformat\endcsname}% individual control
+%}
+%\def\chapter@cntformat{§\@arabic\c@section\quad}
+%\@removefromreset{section}{chapter}		% Section-Zähler soll durchlaufen
+%\makeatother
+%\renewcommand{\thesection}{\arabic{section}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\K}{\mathbb{K}} % |K
+\newcommand{\Q}{\mathbb{Q}} % (Q
+\newcommand{\R}{\mathbb{R}} % |R
+\newcommand{\C}{\mathbb{C}} % (C
+\newcommand{\N}{\mathbb{N}} % |N
+\newcommand{\Z}{\mathbb{Z}} % Z/
+\newcommand{\gdw}{genau dann, wenn }
+\newcommand{\whitedot}{\color{white}.\color{black}}
+\newcommand{\md}{\text{ mod }}
+\newcommand{\btl}{\left|}
+\newcommand{\bbtl}{\left\|}
+\newcommand{\bbtr}{\right\|}
+\newcommand{\btr}{\right|}
+\newcommand{\Lsg}{\mathbb{L}} % L für Lösungsmenge
+\newcommand{\eps}{\varepsilon}
+\newcommand{\I}{\mathcal{I}}
+\newcommand{\nullvec}{\overrightarrow{0}}
+\newcommand{\Lra}{\Leftrightarrow}
+\newcommand {\bpm} { \begin{pmatrix} }
+\newcommand {\epm} { \end{pmatrix} }
+\newcommand{\Ra}{\Rightarrow}
+\newcommand{\ra}{\rightarrow}
+               
+              
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setcounter{secnumdepth}{2}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex}
+\newcommand{\Index}[1]{#1\index{#1}}
+\makeindex
+
+\title{Algorithmen}
+\author{Prof. M. Kaufmann\thanks{Mitschrift: Volodymyr Piven, Alexander Peltzer, Korrektur: Demen Güler, Sebastian Nagel, Aktualisierungen und Korrektur 2013 von Tobias Fabritz, Simon Kalt, Jan-Peter Hohloch, kleine Erweiterung 2015 von Lennard Boden und David-Elias Künstle. Korrigiert und erweitert 2016 von Finn Ickler}}
+\date{Sommersemester 2016\\
+\begin{scriptsize}Stand: \today , \thistime \end{scriptsize} \bigskip\\
+ \Dontwash \quad \NoTumbler \quad \NoIroning }
+
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\input{chapters/0-vorwort-einleitung}
+
+\input{chapters/1-komplexitaet}
+
+\input{chapters/2-rekursionen}
+
+\input{chapters/3-suchen}
+
+\input{chapters/4-sortieren}
+
+\input{chapters/5-dynamische-mengen}
+
+\input{chapters/6-hashing}
+
+\input{chapters/7-graphen}
+
+\input{chapters/8-patternmatching}
+
+\input{chapters/9-dynamisches-programmieren}
+
+\listoffigures
+\addcontentsline{toc}{chapter}{\listfigurename}
+\listofalgorithms
+\addcontentsline{toc}{chapter}{\listalgorithmname}
+
+\printindex
+\end{document}

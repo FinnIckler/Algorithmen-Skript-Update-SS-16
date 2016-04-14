@@ -1,0 +1,643 @@
+% Copyright \copyright\ 2010  Volodymyr Piven und Alexander Peltzer.
+% Es wird die Erlaubnis gegeben, dieses Dokument unter den Bedingungen der von der Free
+% Software Foundation veröffentlichen  GNU Free
+% Documentation License (Version 1.2 oder neuer) zu kopieren, verteilen und/oder
+% zu verändern. Eine Kopie dieser Lizenz ist unter
+% http://www.gnu.org/copyleft/fdl.txt erhältlich.
+%
+% Copyright der Aktualisierung und Überarbeitung \copyright\ 2013  Simon Kalt, Jan-Peter Hohloch, Tobias Fabritz
+% Es wird die Erlaubnis gegeben, dieses Dokument unter den Bedingungen der von der Free
+% Software Foundation veröffentlichen  GNU Free
+% Documentation License (Version 1.2 oder neuer) zu kopieren, verteilen und/oder
+% zu verändern. Eine Kopie dieser Lizenz ist unter
+% http://www.gnu.org/copyleft/fdl.txt erhältlich.
+%
+% Zusätzlich muss jede Kopie/Aktualisierung wieder über die Seite
+% der Fachschaft Informatik der Uni Tübingen
+% den Studenten zur Verfügung gestellt werden
+% http://www.fsi.uni-tuebingen.de/
+
+\chapter{Dynamische Mengen}
+    Operationen: Einfügen, Streichen, Vereinigen, Spalten, etc. \\
+    
+    \section{Suchbäume}
+        Beispiel: $\{ 2,3,5,7,11,13,17 \}$ (\autoref{diag4:search-tree},\autoref{diag5:leaf-oriented}).
+
+        Knoten haben: 
+        \begin{itemize}
+            \item Key-Element
+            \item Verweise zu Kindern (lson, rson)
+            \item oft Verweis zu parent
+        \end{itemize}
+        
+        
+         \subsection{Knotenorientierte Speicherung} 
+            \begin{itemize}
+                \item 1 Element pro Knoten
+                \item Alle Elemente im linken Teilbaum von Knoten v sind kleiner als alle im rechten Teilbaum
+                \item keine Elemente in den Blättern
+            \end{itemize}
+            Dies ist die weiterhin verwendete Speicherform in diesem Skript.
+            
+            \begin{figure}[htp]
+            	\input{diagramme/knotenorientierter_suchbaum}
+            	\caption{Knotenorientierter Suchbaum}
+            	\label{diag4:search-tree}
+            \end{figure}
+
+
+        \subsection{EXKURS: Blattorientierte Speicherung} 
+            1 Element pro Blatt, Elemente aus linkem Teilbaum $\leq$ (Hilfs-) Schlüssel an $v$ $\leq$ Element aus rechtem Teilbaum.
+            Ein Beispiel für diese Speicherung befindet sich in \autoref{diag5:leaf-oriented}.
+            
+            \begin{figure}[htp]
+                \centering
+                \include{diagramme/blattorienterter_baum}
+                \caption{Blattorientierte Speicherung}
+                \label{diag5:leaf-oriented}
+            \end{figure}
+        
+       
+        
+        \subsection{Suchen in Suchbäumen}  
+            Beschrieben in \autoref{alg:searchSearchtree}
+    	\begin{algorithm}
+        		\caption{Suchen in Suchbäumen}
+        		\label{alg:searchSearchtree}
+        		\begin{algorithmic}[1]
+        			\Function{Suchen}{$x$}
+        			    \State $u \gets \text{Wurzel}$
+        			    \State $\text{found} \gets \text{false}$
+        				\While{$u$ exists and !found}
+        				    \If{\Call{key}{$u$} = x}
+        				        \State $\text{found} \gets \text{true}$
+        				    \Else
+        				        \If{\Call{key}{$u$} $> x$}
+        				            \State $u \gets $ \Call{lson}{$u$}
+        				        \Else 
+        				            \State $u \gets $ \Call{rson}{$u$}
+        				        \EndIf
+        				    \EndIf
+        				\EndWhile
+        				\State \Call{Return}{found}
+        			\EndFunction
+        		\end{algorithmic}
+        	\end{algorithm}
+
+        \subsection{Einfügen in Suchbäumen}
+            Einfügen (x) : zuerstSuchen(x) \\
+            Sei $u$ der zuletzt besuchte Knoten $u$ hat $\leq 1$ Kind (oder $x \in S$).\\
+            Falls $x < $ key($u$), erzeuge neues Kind $v$ von $u$ mit key($v$) = x als lson($u$), andernfalls als rson ($u$). \\
+            Beispielhaft (Füge 10 ein): \\
+            \input{diagramme/einfuegen_in_suchbaum} \\
+        
+        \subsection{Löschen in Suchbäumen}
+            \begin{alltt}
+			Streichen (x); zuerst Suchen(x), 
+			Suchen endet in Knoten \( u, x \in S \)
+			1. u ist Blatt
+			streiche u, rson, lson, Verweis von parent(v) auf undef.
+			2. u hat 1 Kind
+			Streiche u, setze w als Kind von parent(u) an die Stelle von u.
+			3. u hat 2 Kinder
+			Suche v mit größtem Info-Element im linken Teilbaum von u, 
+			(einmal nach links, dann immer nach rechts! \( \Ra \) v hat keinen rson)
+			Ersetze u durch v & Streiche v unten (wie Fall 1 oder 2)
+            \end{alltt}
+            
+            Laufzeit $\LO(h+1)$ , wobei h Höhe des Suchbaums ist.\\
+
+        \subsection{Diskussion}
+            Ein Suchbaum kann sich sehr schlecht verhalten. Werden etwa aufsteigende Zahlen eingefügt wie beschrieben,
+            so ergibt sich eine entartete Baumform, die stark an eine Liste erinnert. Beispiel: \\
+            \input{diagramme/entarteter_baum} \\
+            Idee, dies zu lösen: \\
+            \begin{enumerate}[1]
+                \item Hoffe, dass es nicht vorkommt. (Unwahrscheinlich, dass ein solcher Input erfolgt)
+                \item Baue Baum von Zeit zu Zeit neu auf.
+                \item Balancierte Bäume.
+            \end{enumerate}
+
+    \section{Balancierte Bäume}
+        Sei u Knoten im Suchbaum. Die Balance von u sei definiert als 
+        $$
+            Bal(u) = \text{Höhe}(\text{rson}) - \text{Höhe}(\text{lson})
+        $$
+        Setze Höhe des undefinierten TBs $= -1$.\\
+        Beispiele s. \autoref{diag26:balance}
+
+        
+        \begin{figure}[htp]
+			\centering
+			\include{diagramme/beispiele_balance}
+			\caption{$Bal(u) = 0 -1 = -1$, $Bal(x) = 0-2 = -2$}
+			\label{diag26:balance}
+        \end{figure}
+
+        \begin{definition}
+            Ein binärer Baum $T$ heißt AVL-Baum, falls gilt 
+            $$
+                \forall u \in T : \abs{Bal(u)} \leq 1 
+            $$
+        \end{definition}
+
+        \begin{figure}[htp]
+            \centering
+            \input{diagramme/avl_baum_allgemein}
+            \caption{Ein AVL Baum. An den Knoten ist die Balance des jeweiligen Teilbaums angegeben.}
+            \label{diag9:avl-balance}
+        \end{figure}
+
+        \begin{definition}
+            Fibonacci-Bäume (\autoref{diag10:fibonacci-tree})
+            $$T_0, T_1, T_2, \ldots$$ sind definiert durch $T_0 = $ leer, $T_1 = \bullet$, $T_2 = /$, \\
+            $T_h$ siehe Abbildung \ref{diag10:fibonacci-tree} \\
+            Fibonacci-Zahlen: 
+            $$F_0 = 0, F_1 = 1, F_h = F_{h-1} + F_{h-2}$$
+        \end{definition}
+
+        \begin{figure}[htp]
+            \centering
+            \input{diagramme/fibonacci_baum}
+            \caption{Fibonacci-Baum}
+            \label{diag10:fibonacci-tree}
+        \end{figure}
+        
+        \emph{Behauptung:} $T_h$ enthält genau $F_h$ Blätter (für alle $h \geq 0$) \\
+        Beweis per Induktion. (klar)\\
+        \emph{Behauptung:} AVL-Bäume der Höhe $h$ haben $\geq F_h$ Blätter. \\
+        \begin{proof}     
+            \begin{itemize}
+                \item $h=0$ \ $\bullet \ \ \text{ gilt für einen Knoten}$ 
+                \item $h=1$ \ / oder \verb=\= oder /\verb=\=
+                \item $h \geq 2$ : Erhalten den blattminimalen AVl-Baum der Höhe h durch Kombination von blattmin. AVL-Bäumen der Höhe $h-1$ und $h-2$.
+
+                $\Ra \geq F_{h-1} + F_{h-2} = F_h$ Blätter. \\
+                $F_h = h$-te Fibonacci -Zahl. 
+                $$F_h = \frac{\alpha^h - \beta^h}{\sqrt{5}}$$ mit $\alpha = \frac{1+ \sqrt{5}}{2}, \beta = \frac{1-\sqrt{5}}{2}$.   
+            \end{itemize}
+        \end{proof}
+
+        \begin{lemma}
+            AVL-Bäume mit $n$ Knoten haben Höhe $\LO(\log n)$ 
+        \end{lemma}
+
+        \begin{proof}
+            Baum hat $\leq n$ Blätter, also $F_h \leq n$, damit gilt 
+            $$
+                \frac{\alpha^h - \beta^h}{\sqrt{5}} \leq n
+            $$ 
+            Da $\btl \beta \btr < 1$ gilt: 
+            \begin{align*}            
+                \frac{\alpha^h - \beta^h}{\sqrt{5}} &\geq \frac{\alpha^h}{2 \sqrt{5}} \\
+                \Ra \alpha^h &\leq 2 \sqrt{5} \cdot n. \\
+                h \cdot \log \alpha &< \log (2\sqrt{5}) + \log n \\
+                h &\leq \frac{\log 2\sqrt{5} + \log n}{\log \alpha} = \LO(\log n)
+            \end{align*}
+        \end{proof}
+
+        Beim Einfügen/Streichen kann die Balance gestört werden, z.B. auf -2 oder 2 (siehe anschließendes Beispiel). Wir fordern aber für einen AVL Baum, dass ständig gilt 
+        $$
+            \forall u \in T : \abs{Bal(u)} \leq 1 
+        $$
+        und wissen von Fibonacci-Bäumen, dass die Höhe $\LO(\log n)$ beträgt. Es müssen also bei Operationen am Baum Korrekturen ausgeführt werden,
+        dass die AVL-Eigenschaften erhalten bleiben.
+   
+        \subsection{Einfügen($w$) in AVL-Bäumen}
+            Angenommen es wurde die AVL-Bedingung zerstört und es ist eine Balance von $\pm 2$ entstanden. Dann sei $u$ der tiefste dieser "`unbal."' Knoten. O.B.d.A. sei $Bal(u)=2$ \\
+            
+            Sei $w$ der neue Knoten. Der wurde rechts eingefügt. Sei $v$ rechtes Kind von $u$\\
+            \begin{enumerate}[\text{Fall} 1)]
+                \item Bal(v) = 1
+
+                \begin{tabbing}
+                    Es gilt: \= 1) Links-Rechts Ordnung wird aufrechterhalten:\\
+                    \> $T_{L} \leq u \leq T_{A} \leq v \leq T_{B}$\\
+                    \> 2) Nach Rotation haben $u$ und $v$ Balance 0.\\
+                    \> Knoten in $T_{A}, T_{B}, T_{L}$ behalten ihre alte Balance.\\
+                    \> 3) Höhe($v$) nach Rotation = Höhe($u$) vor Einfügen($w$).
+                \end{tabbing}
+                \item Bal(v) = -1\\
+                Nach Einfügen von $w$ folge dem Pfad von $w$ zur Wurzel.\\
+                Berechne auf diesem Pfad alle Balancen neu. \\
+                Tritt Bal. -2/2 auf, führe Rotation/Doppelrotation aus.\\
+                Laufzeit: $\LO(\log n)$ (Rot./Doppelrot. in $\LO(1)$)
+                \item Bal(v) = 0\\
+                Kann nicht vorkommen. AVL-Bedingung vorher schon verletzt.
+            \end{enumerate}
+            
+            \subsubsection{Beispiel für Einfügeoperation}
+                Es soll in den folgenden Baum das Element 3 eingefügt werden:
+                \begin{center}
+                    \input{diagramme/avl_insert_2.tikz}
+                \end{center}
+                Dieser hat jedoch nach einer Einfügung die nachfolgende Gestalt
+                \begin{center}
+                    \input{diagramme/avl_insert_3.tikz}
+                \end{center}
+                Da nun am obersten Knoten die Balance 2 entstanden ist, muss an der Wurzel rotiert werden. Dies führt zu folgendem Baum:
+                \begin{center}
+                    \input{diagramme/avl_insert_3_rot.tikz}
+                \end{center}
+                Es sind dabei an allen Knoten die jeweiligen Balancen angegeben.
+
+        
+        \subsection{Streichen($w$) in AVL-Bäumen}
+            Annahme: es gibt Knoten mit Bal $\pm 2$.\\
+            Sei $u$ der tiefste solche Knoten.\\
+            O.B.d.A. sei $Bal(u) = 2$.\\
+            Sei $v$ das rechte Kind von $u$
+            \begin{enumerate}[\text{Fall} 1)]
+                \item Bal($v$) = 0\\
+                Höhe insgesamt hat sich nicht geändert gegenüber vor Streichen. Können hier abbrechen!
+                \item Bal($v$) = 1\\
+                Beobachte: Der Teilbaum hat jetzt kleinere Höhe als zuvor. Balancen oben drüber ändern sich!\\
+                $\Rightarrow$ Iteriere Rebal.-Prozess weiter oben.
+            \end{enumerate}
+            \begin{satz}
+                Balancierte Bäume (AVL) erlauben Suchen/Einfügen/Streichen in Zeit $\LO(\log n)$, wobei $n$ Zahl der Knoten.
+            \end{satz}
+        
+        \subsection{Anwendung (Schnitt von achsenparallelen Liniensegmenten)}
+            Ziel: Anzahl der Schnittpunkte von achsenparallelen Liniensegmenten berechnen. Die Lage wird als allgemein angenommen.
+            Ein naiver Algorithmus, der paarweise alle Elemente vergleicht hätte eine Laufzeit von $\LO(n^{2})$. 
+            Wir wählen also eine bessere Alternative:
+            
+            \subsubsection{PlaneSweep}
+                \emph{x-Struktur:} geordnete Liste von Endpunkten nach x-Koor. statisch, durch Sortieren erzeugt.\\
+                \emph{y-Struktur:} repräsentiert einen Zustand der Sweepline $L$ (dynamisch). Speichern in $L$ horiz. Segmente, 
+                die im Moment von $L$ gekreuzt werden geordnet nach y-Koordinate.\\
+                $\rightarrow$ AVL-Baum unterstützt Einf./Streichen in Zeit $\LO(\log n)$\\
+                
+                \emph{Vertikale Segmente:} $(x, y_{u}, y_{o})$\\
+                Wollen berechnen \# horiz. Segmente mit y-Koord. zwischen $y_{u}$ und $y_{o}$\\
+                $\rightarrow$ berechne Rang($y_{u}$), Rang($y_{o}$). (\# Elemente, die kleiner sind)\\
+                Rang($y_{o}$) - Rang($y_{u}$) = \# Schnittpunkt auf vert. Segment.\\
+                zu tun: Bestimme Rang(x) in AVL-Baum.\\
+
+                Merke in jedem Knoten die Zahl der Knoten im linken Teilbaum (l count).\\
+                Suchen(x): Beim Rechtsabbiegen erhöhe Rangzähler um (l count + 1) $\rightarrow$ Rang(x) in $\LO(\log n)$\\
+                $\Rightarrow$ Gesamtlaufzeit: $\LO(n \cdot \log n)$ \\
+                Wollen wir die Kreuzungen explizit bestimmen, dann brauchen wir eine Laufzeit von $\LO(n \cdot \log n + k)$
+
+    \section{(2,4)-Bäume (blattorientiert)}
+        (2,4)-Bäume gehören zu den (a,b)-Bäumen.
+        
+        \begin{definition}
+            Seien $a,b \in \N$ mit $a \geq 2$, $b \geq 2a-1$. T heißt (a,b)-Baum falls gelten:
+            \begin{enumerate}[a)]
+                \item alle Blätter von T haben gleiche Tiefe
+                \item alle Knoten haben $\leq b$ Kinder
+                \item alle Knoten (außer Wurzel) haben $\geq a$ Kinder
+                \item Wurzel hat $\geq 2$ Kinder
+            \end{enumerate}
+        \end{definition}
+        
+        Das Ziel ist nun die Menge $S = \{x_1 < x_2 < ... < x_n\}$ abzuspeichern. Dabei sollen die Schlüssel in den Blättern aufsteigend von links
+        nach rechts geordnet abgespeichert werden.
+        
+        \begin{enumerate}[1.]
+            \item Schlüssel in Blättern.
+            \item Innere Knoten $v$ mit $d$ Kindern hat Elemente $K_1(v), \ldots, K_{d-1}(v)$ \\
+            $k_i(v)$ = Inhalt des rechtesten Blattes im i-ten Unterbaum. 
+        \end{enumerate}
+
+
+        \begin{bsp}
+            $$S=\{2,5,7,11,15,17,19 \}$$ 
+            Klar: Tiefe ist $\LO(\log n)$
+            \begin{figure}
+            	\input{diagramme/2_4_baum}
+            	\caption{(2,4)-Baum}
+            \end{figure}
+            
+        \end{bsp}
+
+        \subsection{Suchen in (2,4)-Bäumen}
+            Suchen(k) $\checkmark$ \qquad Suche nach $k$ liefert Blatt $k^{'} = \text{ min }\{x \in S \mid k \leq x \}$ 
+            
+        \subsection{Einfügen in (2,4)-Bäumen}
+            Einfügen(k): Zuerst \textit{Suchen}$(k)$ liefert Blatt $v_i$ mit \textit{Schlüssel} $(v_i) < k < \text{\textit{ Schlüssel}} (v_i) $ \\
+
+        \begin{alltt}
+            Sei \( w \) der parent von \( v \) : \\
+            while \( w \) hat 5 kinder do Spalte(\( w \)) 
+            \( w \) \( \Leftarrow \) parent(\( w \)) 
+        \end{alltt}
+
+        Laufzeit: $\LO(1+ \#$ Spaltungen) \\
+        
+        
+        \subsection{Streichen in (2,4)-Bäumen}
+            Streiche$(k)$ : Zuerst Suchen$(k)$ $\ra$ Endet in Blatt v mit Schlüssel k. \\
+            \begin{enumerate}[1.]
+                \item Fall:  $K$ steht auch in parent$(v) = w$ \\
+                \input{diagramme/Diagramm20}
+                \item
+                $v$ rechtestes Kind $w$ sei Vorgänger von $v$ und $v^{'}$ der linke Nachbar mit Schlüssel $k^{'}$.\\
+                Streiche $v$ und Ersetzte Vorkommen von $k$ durch $k^{'}$. Streiche $k^{'}$ im $parent(w)$, da nun höchster Schlüssel. 
+                (vgl. \autoref{diag21:rechtestes_Kind_streichen})
+                \begin{figure}
+                	\input{diagramme/Diagramm21}
+                	\caption{Bsp. $v$ rechtestes Kind von $parent(v)$ streichen (blattorientiert)}
+                	\label{diag21:rechtestes_Kind_streichen}
+                \end{figure}
+                \begin{alltt}
+                while w hat ein Kind
+                do Verschmelze oder Stehlen od
+                \end{alltt}
+                Verschmelzen: \\
+                \input{diagramme/Diagramm22}\\
+                Stehlen: Geschwisterknoten von $w$ hat 3 oder 4 Kinder:  Gibt uns an w ab. \\
+                \input{diagramme/Diagramm23}
+            \end{enumerate}
+
+        \subsection{Laufzeitanalyse}
+            Nach Spaltung hat der Baum eine bessere Struktur, deshalb:
+            \emph{Amortisierte Analyse:}\\
+            (= Kosten pro Operation gemittelt über n Operationen)
+
+            \begin{lemma}
+                In einem (2,4) Baum sind die amortisierten Kosten der Operationen Einfügen/Streichen $\LO(1)$.
+            \end{lemma}
+            \begin{proof}
+                Beschreibung des Zustands des Baums T: \\
+                $\textit{pot} (T)$
+                \begin{eqnarray*}
+                    &=& 2 \cdot \# \text{ Knoten von Grad } 1 \\
+                    &+& 1 \cdot \# \text{ Knoten von Grad } 2 \\
+                    &+& 0 \cdot \# \text{ Knoten von Grad } 3 \\
+                    &+& 2 \cdot \# \text{ Knoten von Grad } 4 \\
+                    &+& 4 \cdot \# \text{ Knoten von Grad } 5
+                \end{eqnarray*}
+                \emph{Invariante}: \\
+                \begin{itemize}
+                    \item $pot(T) \geq 0$ 
+                    \item bei Spalten/Verschmelzen/Stehlen ist nur ein Knoten nicht auf Grad 2,3,4
+                    \item Vor Einfügen /Streichen haben alle Knoten den Grad 2,3,4.
+                \end{itemize}
+                Einzeloperationen haben Kosten von $\LO(1)$.\\
+                \emph{Behauptung:} Spalten / Verschmelzen verringern Potential. Stehlen erhöht es nicht. \\
+                \emph{Beweis:} \\
+                Stehlen. Knoten $w$ trug 2 Einheiten zum Potential bei und sein Nachbarknoten $p$. Danach trägt $w$ 1 Einheit bei, 
+                Nachbar $\leq p +1$.
+            \end{proof}
+
+            \emph{Spalten}: $w$ trägt 4 bei zum Potential, der parent trägt p bei. Danach haben die beiden neuen Knoten $0$ und $1$, der
+            parent hat $\leq  p +2 $ $\checkmark$.\\\
+
+            \emph{Verschmelzen}: $w$ trägt 2 bei, Geschwisterknoten von $w$ trägt 1 bei, der parent trägt p bei \\
+            $\Ra$ Danach 0 und $\leq p+1$ .\\\
+
+            Amortisierte Laufzeit für Einfügen: Tatsächliche Kosten + Potentialerhöhung. \\
+            Tatsächliche Kosten 1 + Potentialerhöhung $\leq 2$ \\
+            Folge von $f$ Spaltungen: tatsächliche Kosten $f$, Potentialerhöhung $\leq f$. \\
+            $\Ra$ Amortisierte Kosten von Einfügen: $\leq 3$ \\\\
+            Streichen analog\\
+
+        \subsection{Anwendung: Sortieren} 
+            durch Einfügen: $\LO(n \log n)$ \
+            vorsortierter Folgen: Mache Suchen billiger! \\
+            Sei $x_1, \ldots, x_2$ Folge reeller Zahlen. \\
+            $$F= \btl \{ (i,j) \mid i < j \text{ und } x_i > x_j \} \btr$$
+            (Zahl der Inversionen). Es gilt $O \leq F \leq \frac{n^2}{2}$
+
+            \begin{satz}
+            $x_1, \ldots x_n$ kann in Zeit $\LO(n \log \frac{F}{n})$ sortiert werden. 
+            \end{satz}
+
+            \begin{proof}
+                Sei $f_i = |\{ j \mid i < j , x_i > x_j \}|$ Es gilt $F= \sum \limits_{i} f_i$ \\
+                Starte mit leerem (2,4) Baum. Füge Folge in umgekehrter Reihenfolge ein. \\
+                \input{diagramme/Diagramm24}
+                Füge $x_n, \ldots, x_1$ ein. Einfügen $(x_i)$: Starte am linkesten Blatt; laufe hoch und drehe an der richtigen Stelle um,
+                laufe runter und füge ein. Ist $x_i$ klein, so laufe nicht sehr hoch. \\\
+                Es gilt (amortisiert): Kosten für Einfügen $= \LO(1 + \log f_i)$ \\
+                Suchen$(x_i) = \LO(\log f_i)$ \\
+                Einfügen: = $\LO(1)$. \\\\
+                Laufe hoch bis Höhe $h$ (Umkehrpunkt): \\
+                $$2^{h-1} \leq f_i \Ra h \leq 1 + \log f_i$$
+                $\Ra$ Gesamtkosten: 
+                \begin{align*}
+                		\sum \limits_{i} \LO(1+ \log f_i) 	&= \LO(n + \sum \limits_{i=1}^n \log f_i) \\
+                									&= \LO(n+\log \prod \limits_{i=1}^n f_i\\
+                									&= \LO(n+\log \prod \limits_{i=1}^n \frac{F}{n}\\
+                									&\leq \LO(n + n \log \frac{F}{n})
+                \end{align*}
+                $x_i$ wird nach dem $f_i$-ten Element in die bisherige Liste eingefügt.
+            \end{proof}
+        
+        
+        
+    \section{B-Bäume (knotenorientiert)}
+        \subsection*{Anmerkung}
+            In allen Skizzen müssten die Pointer jeweils vor und nach einem Element stehen. Dies ist wegen des erhöhten Zeichenaufwandes vernachlässigt worden.
+            
+        \subsection{Idee und Definition}            
+            Idee: Mehr Daten in einen Knoten 
+            \begin{definition}
+                B-Baum der Ordnung $k$. $k \geq 2$ ist ein Baum dessen: \\
+                \begin{enumerate}[1]
+                    \item Blätter alle gleiche Tiefe haben 
+                    \item Wurzel $\geq 2$ Kinder und dessen andere inneren Knoten $\geq k$ Kinder Haben.
+                    \item innere Knoten $\leq 2k-1$ Kinder haben. \\
+                \end{enumerate}
+            \end{definition}
+
+            Höhe eines B-Baums: \\
+            \begin{lemma}
+                Sei $T$ ein Baum der Ordnung $k$ mit Höhe $h$ und $n$ Blättern. \\
+                Dann gilt: \\
+                \begin{center}
+                    $2 \cdot k^{h-1} \leq n \leq (2k-1)^h$ 
+                \end{center}
+                \begin{proof}
+                    Zahl der Blätter ist minimal, wenn jeweils die Minimal-Anzahl von Kindern vorkommen und maximal, wenn jeweils die Maximalzahl 
+                    vorkommt.
+                    $$2 \cdot \underbrace{k \cdot k \ldots \cdot k}_{h-1} \text{ mal} = n_{\min} \leq n \leq n_{\max} = (2k-1)^h$$
+                \end{proof}
+
+                Es gilt somit $\log_{(2k-1)} n \leq h \leq 1+ \log_k (\frac{n}{2})$ (logarithmieren!)\\
+                Operationen: \textit{Suchen}(x), \textit{Einfügen}(x), \textit{Streichen}(x) \\
+                Sei $u$ Knoten mit $k$ Kindern und Schlüsseln 
+                $$s_1 < s_2 < \ldots < s_{l-1}$$ mit Unterbäumen $$T_1, \ldots , T_l$$
+                \input{diagramme/btree_allg.tikz}         
+                Es gilt für alle $v \in T_i$ und Schlüssel $s$ in $v$: \\
+                \begin{center}
+                    $s \leq s_i$ falls $i=1$ \\
+                    $s_{i-1} < s \leq s_i$ falls $1 < i < l$ \\
+                    $s_{i-1} < s$ falls $i=l$ 
+                \end{center}
+            \end{lemma}
+
+            Algorithmus: \\
+            \begin{alltt}
+                Suchen(x): Starte in w= Wurzel \\
+                suche kleinstes \( s_i \) in w mit \( x \leq s_i \) \\
+                falls \( s_i \) existiert, dann 
+                if \( x= s_i \) then gefunden 
+                else w \( \leftarrow \) i-tes Kind von w , suche dort weiter
+                falls \( s_i \) nicht existiert, dann 
+                w \( \leftarrow \) rechtestes Kind von w, suche dort weiter.
+            \end{alltt}
+            Laufzeit: $\LO(\log_k n \cdot k)$ (Höhe mal Suche innerhalb eines Knotens)\\
+
+        \subsection{Einfügen(x)}
+            Suchen(x) endet in Blatt b mit parent v, der l Kinder hat. Nun müssen 2 Fälle unterschieden werden.
+            \begin{enumerate}
+                \item In Blatt b ist noch genügend Platz für eine Einfügung vorhanden. Dann füge x in b ein.
+                \item Nach Einfügung von x hätte Blatt b $2k-1$ Elemente: Teile auf.
+            \end{enumerate}
+            
+            \emph{Aufteilen bei Einfügung:} Sollte bei einer Einfügung der 2. Fall aufgetreten sein, muss der Blattknoten geteilt werden. Sortiere dazu die Blattelemente aus b und entferne den Median $m$. Bilde aus den Elementen $e$ mit $e < m$ das Blatt $b$ und aus den verbleibenden Elementen das Blatt b'. Füge dann $m$ als neuen Seperator in den Vaterknoten $v$ ein. Die Blätter $b$ und $b$' stehen dann jeweils links und rechts von $m$. Ein Beispiel mit konkreten Werten und Erklärungen findet sich im nächsten Kapitel.
+            
+            \emph{Beachte:} Dabei kann der Vaterknoten $v$ ebenfalls mehr als $2k-2$ Elemente enthalten. Die Einfügung muss also rekursiv nach oben fortgesetzt werden. Wird dabei die Wurzel aufgespalten, so ergibt sich eine neue Wurzel mit 2 Kindern und Tiefe wächst um 1. Dies ist die einzige Möglichkeit, mit der die Tiefe eines B-Baums wachsen kann.
+            
+            
+        \subsection{Konkrete Beispiele für die Operationen}
+            \subsubsection{Einfügung mit Split}
+                Es wird zu beginn vom folgenden B-Baum ausgegangen:
+                \begin{center}
+                    \input{diagramme/btree_initial_insert.tikz}
+                \end{center}
+                Es soll nun der Wert I eingefügt werden. Dies führt zu mehreren Splits und dem B-Baum
+                \begin{center}
+                    \input{diagramme/btree_insert_I.tikz}
+                \end{center}
+                Nachdem $I$ eingefügt wurde, war der Knoten $H,I,K$ überbelegt. Das mittlere Element wird nach oben geschoben. Auch dort ist der Knoten nun überbelegt und wird gesplittet. Dabei wächst die Tiefe des Baums um 1. 
+                
+            \subsubsection{Löschen mit Merge}
+                Es wird zu beginn vom folgenden B-Baum ausgegangen:
+                \begin{center}
+                    \input{diagramme/btree_initial_delete.tikz}
+                \end{center}
+                Es soll nun der Wert B gelöscht werden
+                \begin{center}
+                    \input{diagramme/btree_delete_B.tikz}
+                \end{center}
+                Nachdem B gelöscht wird, müssen Kindknoten gemerged werden.
+                
+
+    \section{Randomisierte Suchbäume}
+        \begin{itemize}
+            \item Treaps(Aragorn/Seidel)
+            \item Skiplists (Pugh)
+        \end{itemize}
+        
+        \subsection{Skiplists} 
+            Gegeben: $S = \{ x_1, \ldots, x_n \}$ , $p=(\frac{1}{2})$ \\            
+            Definiere Datenstruktur bezüglich Leveling aus Listen: \\
+            Füge $\pm \infty$ als Spezialelemente in alle Listen ein. Elemente der Liste $L_i$ werden von links nach rechts verbunden. Verbinde zusätzlich alle Elemente $x$ vom höchsten Level bis Level 1. Element $x$ bildet also einen Turm mit $l(x)$ Knoten. Wir haben nun eine Baumstruktur mit Intervallen, die auf Level $i+1$ mehrere Intervalle auf Level $i$ umfassen. Dabei sei $c(I)$ die Zahl der Kinder von Intervall $I$           
+            
+            $S= L_1 \supseteq L_2 \supseteq \ldots \supseteq L_r=\emptyset$
+            
+            \subsubsection{Zufälliges Leveling:}
+            
+            
+%            % 2013 anders, s.u.
+%            \begin{alltt}
+%            Starte mit \( L_1 = S \)  \\
+%            Gehe zu \( L_2 \). Mache Münzwurf für jedes Element aus dem Level darunter
+%            und kopiere es hoch, mit Wahrscheinlichkeit \( p \). \\
+%            Level \( t \) sei das höchste mit  \( x \). Die Wahrscheinlichkeit dass Schlüssel \( x \)\\
+%            auf höchstem Level \( k \) ist, ist 
+%            $$p^{k-1} (1-p) $$
+%            \end{alltt}
+            
+            $L_{i+1}$ ergibt sich aus $L_i$ indem jedes Element $x\in L_i$ mit Wahrscheinlichkeit $p=\frac{1}{2}$ an $L_{i+1}$ weitergereicht wird.
+            $l(x)$ für $x\in S$ sind unabhängige Zufallsvariable nach einer Geometrischen Verteilung mit $p=\frac{1}{2}$.
+            
+            \emph{Geometische Verteilung:}\\
+            Wirf Münze, bis Zahl fällt. X ist Anzahl der benötigten Würfe.
+            
+            $E(X)=\frac{1}{p}$, $Var(X)=\frac{1-p}{p}$\\\\
+            
+            Erwarteter Platzbedarf für zufällige Skiplist mit $|S|=n$ ist also $2n=\LO(n)$
+            
+            \begin{lemma}
+            	Zahl der Level r bei zufälligem Leveling hat Erwartungswert $E(r)=\LO(\log n)$. Es gilt $r=\LO(\log n)$ mit hoher Wahrscheinlichkeit.
+            \end{lemma}
+            \begin{proof}
+            	Sei $r=\max\{l(x)|x\in S\}$ und $l(x)$ sind geometrisch verteilte Zufallsvariablen mit $p=\frac{1}{2}$.
+            	Sei $X_i$ die Zufallsvariable für $x_i\in S$.\\
+            	Es gilt:\\
+            	$P( X_i>t)<(1-p)^t$ und $P(\max\limits_{i} X_i>t)<n\cdot (1-p)^t=\frac{n}{2^t}$ für $p=\frac{1}{2}$\\
+            	Mit $t=\alpha\log n$ und $r=1+\max\limits_i X_i \Ra P(r>\alpha\log n)\le \frac{1}{n^{\alpha\log n -1}}$ 
+            \end{proof}
+
+
+%		%quite strange...
+%            Erwartungswert: 
+%            $$\sum \limits_{k=1}^\infty k \cdot p^{k-1} (1-p) = (1-p) \sum \limits_{k=1}^\infty k \cdot p^{k-1} = (1-p) \cdot \frac{1}{(1-p)^2} = \frac{1}{1-p}$$
+%
+%            \underline{höchster Level:}(erwartet) \\
+%            Sei $v = \max \{L(t) \mid t \in S \}$ \\
+%            $L(x)$ hat den Erwartungswert $\frac{1}{1-p}$ \\
+%            Wahrscheinlichkeit, dass $L(t) > t$ ist, ist $< p^t$ \\
+%            Levelzuweisung der Elemente ist unabhängig, d.h. die Wahrscheinlichkeit dass ein Element (aus $n$ vielen) Level $2t$ hat, ist $< n \cdot p^t$ \\\
+%            Setze $t = c \cdot \log n$, $p= \frac{1}{2}$ \\
+%            $\Ra \textit{prob}(v > c \cdot \log n) \leq \frac{n}{2^{c \log n}} < \frac{1}{n}$ für $c > 1 $ \\
+%            Höhe des Skipbits ist demnach $O (\log n)$ \\\\
+%
+%			%2013 anders
+%            \emph{Suchen(x)} \\
+%
+%            Starte im Level $v$ mit Header. Laufe nach rechts in $L_v$, bis Element $> x$ gefunden wird. Im Element zuvor gehe nach unten. Iteriere. \\
+%            Suche durchläuft Skipbits von rechts oder hin zu $x$. Strategie: Gehe möglichst nach rechtst, wenns nicht mehr geht, gehe nach unten. \\
+
+	   \subsubsection{Suchen(x)}
+	   	  laufe Intervalle levelweise (r$\ra$ 0) ab:\\
+	   	  Sei $I_j(x)$ das Intervall auf Level j, das x enthält.\\
+	   	  Liegt x auf dem Rand von zwei Intervallen, weise x dem linken Intervall zu.\\
+	   	  Folge $I_r(x)\supseteq I_{r-i}(X)\supseteq\dots\supseteq I_1(x)$ lässt sich als Pfad von Wurzel zum Blatt ansehen.
+
+        \subsubsection{Laufzeit}
+        	    $$
+        	        \LO\left(\sum\limits_{j=0}^r 1 + c\left(I_j(y)\right)\right)
+        	    $$
+            Anzahl Level: $\LO(\log n)$ , Anzahl Schritte nach unten. \\
+            Der Suchpfad von $x$ zurück zu Level $v$ wird beschrieben durch: \\
+            Gehe nach oben, wenn möglich; wenn nicht gehe nach links. \\
+            Schritt nach links gibt es mit Wahrscheinlichkeit $\frac{1}{2}$ jeweils $\Ra$ Erwartete Anzahl der Schritte nach links ist
+            genauso groß, wie erwartete Anzahl der Schritte nach oben. $\Ra$ Laufzeit $\LO(\log n)$ 
+        
+        \subsubsection{Einfügen(x)}
+            Suche zuerst nach $x$. Füge es in $L_1$ ein und hänge zwei Zeiger um $\Ra \LO(\log n)$\\
+            Laufe hoch und mache Zufallsexperiment, füge nacheinander eventuell Kopien ein.\\
+            Ist $l(x)>r$, kreiere neues Level, $l(x)\gets r+1$, $r\gets r+1$. 
+            Bestimme Suchpfade durch Intervalle von $l(x)$ aus und spalte durch Einfügen von x.
+            %Gemeint ist, dass x bisher bestehende Intervalle teilt und so neue verknüpfungen nötig werden. Bessere Formulierung?
+            Erwartete Zahl von Kopie ist 2 $\Ra \LO(1)$ erwartet. \\
+            $\Ra $gesamt $ \LO(\log n)$
+        
+        \subsubsection{Streichen(x)}
+            Während dem Suchlauf nach $x$ lösche von oben nach unten alle Vorkommen von $x$ durch Zeigerumhängen. Laufzeit: $\LO(\log n)$.\\
+            
+            \begin{satz}
+        	        In zufälliger Skiplist für S der Größe n können Suchen/ Einfügen/ Streichen in erwarteter Zeit von $\LO(\log n)$ ausgeführt werden.
+            \end{satz}
+        
+        \subsubsection{Weitere Operationen:}
+        	    \begin{itemize}
+        	  	    \item[join($S_1,x,S_2$):] ersetzte $S_1,S_2$ durch $S_1\cup\{x\}\cup S_2$ und $\forall y\in S_1, z\in S_2 : y<x<z$\\
+        	      		Idee: hänge $L_i(S_1),L_i(S_2)$ aneinander $\forall i$ und füge dann x ein
+        	      	\item[paste($S_1,S_2$):] analog
+        	      	\item[split($x,S$):] Umkehrung von join()\\
+        	      		Idee: streiche x, verweise auf $\pm\infty$ statt nächstes Element
+        	    \end{itemize}
+
+		    Alles in $\LO(\log n)$!
+		    
+		\subsubsection{Beispiel}
+		    Es sollen beispielhaft die Elemente
+            $$
+                23, 16, 18, 35, 11, 28, 56, 13, 14
+            $$
+            mit Hilfe der Zufallsbitfolge
+            $$
+                1010011001010001101    
+            $$
+            in eine Skiplist eingefügt werden. Dies ergibt die folgende Skiplist.
+            \begin{center}
+                \input{diagramme/skiplist.tikz}
+            \end{center}

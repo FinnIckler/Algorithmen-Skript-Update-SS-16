@@ -1,0 +1,30 @@
+digraph NodeOriented {
+    splines=false
+    a:f0 -> b:f1;
+    a:f2 -> c:f1;
+    b:f0 -> d:f1;
+    b:f2 -> e:f1;
+    c:f0 -> f:f1;
+
+    c:f2 -> g;
+    d:f0 -> h;
+    d:f2 -> i;
+    e:f0 -> j;
+    e:f2 -> k;
+    f:f0 -> l;
+    f:f2 -> m;
+
+    a[label="<f0> | <f1>10 | <f2>", shape=record, height=.1]
+    b[label="<f0> | <f1> 3 | <f2>", shape=record, height=.1]
+    c[label="<f0> | <f1>15 | <f2>", shape=record, height=.1]
+    d[label="<f0> | <f1> 2 | <f2>", shape=record, height=.1]
+    e[label="<f0> | <f1> 5 | <f2>", shape=record, height=.1]
+    f[label="<f0> | <f1>11 | <f2>", shape=record, height=.1]
+    g[label=17, height=.5, width=.7]
+    h[label= 2, height=.5, width=.7]
+    i[label= 3, height=.5, width=.7]
+    j[label= 5, height=.5, width=.7]
+    k[label= 7, height=.5, width=.7]
+    l[label= 1, height=.5, width=.7]
+    m[label=13, height=.5, width=.7]
+}

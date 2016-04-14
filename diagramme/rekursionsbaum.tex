@@ -1,0 +1,16 @@
+\begin{tikzpicture}[->,node distance=3cm,tree node/.style={draw=none,fill=none}]
+  \node[tree node] (1) {$f(n)$};
+  \node[tree node] (2) [below left of=1] {$f(n/b)$};
+  \node[tree node] (3) [below right of=1] {$f(n/b)$};
+  \node[tree node] (4) [below left of=2] {$f(n/b^2)$};
+  \node[tree node] (5) [below right of=3] {$f(n/b^2)$};
+  \node[tree node] (6) at ($(2)!0.5!(3)$) {\dots $a$-mal \dots};
+  \node[tree node] (7) [right of=5] {$a^2 \cdot f(n/b^2)$};
+  \node[tree node] (8) [above of=7, yshift=-0.88cm] {$a \cdot f(n/b)$};
+  \node[tree node] (9) [above of=8, yshift=-0.88cm] {$f(n)$};
+  
+  \path (1) edge node [left] {} (2)
+            edge node [right] {} (3);
+  \path (2) edge node [left] {} (4);
+  \path (3) edge node [right] {} (5);
+\end{tikzpicture}

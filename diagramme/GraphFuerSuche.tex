@@ -1,0 +1,17 @@
+\begin{tikzpicture}[-, node distance=2cm, every node/.style={circle,draw}]
+	\node (b) {b};
+	\node (d) [above of=b] {d};
+	\node (a) [right of=b] {a};
+	\node (e) [right of=d] {e};
+	\node (c) [above right of=a] {c};
+	
+	\path[draw]
+		(b) edge (d)
+		(b) edge (a)
+		(b) edge (e)
+		
+		(d) edge (e)
+		(e) edge (c)
+		(c) edge (a);
+
+\end{tikzpicture}

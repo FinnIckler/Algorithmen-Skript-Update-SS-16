@@ -1,0 +1,288 @@
+% Copyright \copyright\ 2015 Lennard Boden, David-Elias Künstle
+% Es wird die Erlaubnis gegeben, dieses Dokument unter den Bedingungen der von der Free
+% Software Foundation veröffentlichen  GNU Free
+% Documentation License (Version 1.2 oder neuer) zu kopieren, verteilen und/oder
+% zu verändern. Eine Kopie dieser Lizenz ist unter
+% http://www.gnu.org/copyleft/fdl.txt erhältlich.
+%
+% Zusätzlich muss jede Kopie/Aktualisierung wieder über die Seite
+% der Fachschaft Informatik der Uni Tübingen
+% den Studenten zur Verfügung gestellt werden
+% http://www.fsi.uni-tuebingen.de/
+
+\chapter{Dynamisches Programmieren} 			
+
+\section{Idee:} optimale Lösung setzt sich aus optimalen Lösungen für kleinere Teilprobleme zusammen löse rekursiv und setze zusammen.\\
+\ \\
+Beispiel: Schnittproblem für Stab der Länge n.\\
+$\rightarrow$ zerschneide Stab in kleine Stücke der Länge\\
+$\rightarrow$ Teil der Länge i kostet pi\\
+$\rightarrow$ maximiere Gesamterlös $r_n$.\\
+1. Lass Stab ganz  	   $p_n + r_n$\\
+2. 1 Stück mit Länge 1  $p_1 + r_{n-1}$\\
+3. 1 Stück mit Länge 2  $p_2 + r_{n-2}$\\
+
+\section{Schnittproblem}
+\textbf{Algorithmus:}
+
+\begin{algorithmic}[1]
+\Function{Schnitt}{n,p}
+\Comment{Input: n, Preisliste p}
+\State q := $- \infty$;
+\If{n = 0} 
+\State{return 0;}
+\EndIf
+\For{i $\in [1, n]$} 
+	\State{q := max(q, p[i] + Schnitt(n-1);}
+\EndFor
+\Return q;
+\EndFunction 
+\end{algorithmic}
+
+Analyse:
+$T(n) = \text{Aufruf von } Schnitt()$
+$T(0) = 1$
+$T(n) = 1 + \Sigma_j = 0n-1(T(j))$
+\\
+\textbf{dynamische Programmierung:} berechne Teillösungen!\\
+\begin{algorithmic}
+\Function{Schnitt}{n,p}
+\State r[0] = 0;
+\For{j $\in [1, n]$}
+	\State{
+	\State $q := \infty;$\\
+	\For{i $\in [1, j]$}
+		\State{q := max(q, p[i] + r[j-i])}
+	\EndFor
+	r[j] := q;}
+\EndFor
+ \Return r[n];
+\EndFunction
+\end{algorithmic}
+Laufzeit:\\
+$T(n) = \sum\nolimits_{j = 1}^n \dfrac{n(n+1)}{2} = \mathcal O(n^2)$\\
+\textbf{Beachte}: Größe $j$ wird erst betrachtet, wenn die kleineren Größen alle feststehen.\\
+Rekonstruktion der optimalen Lösung:\\
+
+Merke für r[j] den 1. Schritt; also ersetze q = max(q, ...) durch\\ 
+\begin{algorithmic}
+\If{q < p[i] + r[j-1]}
+	\State{
+	q := p[i] + r[j-1];\\
+	s[j] := i;}
+\EndIf
+\end{algorithmic}
+
+Das Stück s[j] := i heißt, das Stück am Stab der Länge 1.\\
+
+\section{Matrizenmultiplikation}
+
+Matrizenmultiplikation $A \cdot B$\\
+Voraussetzung: Anzahl Spalten von A = Anzahl Zeilen von B.\\
+\begin{algorithmic}
+\For{i $\in [1, A.Zeilen()]$}
+ \State{
+	\For{j $\in [1, B.Spalten()]$}  \State{
+		$c_{i, j} := 0$\\
+		\For{k $\in [1, A.Spalten()]$}  \State{
+		$c_{i, j} := c_{i, j} + a_{i, k} \cdot b_{k, j}$}
+		\EndFor
+	}
+	\EndFor
+}
+\EndFor
+\Return C;
+\end{algorithmic}
+Berechne $A \cdot B \cdot C \cdot D \cdot E \cdot F$\\
+Bsp.: \\
+A := (4 x 2)\\
+A $\cdot$ B [:= (2 x 3)] $\Rightarrow$ ergibt [4 x 3] $4 \cdot 3 \cdot 2 = 24$ Operationen\\
+B $\cdot$ C [:= (3 x 1)] $\Rightarrow$ ergibt [4 x 1] $4 \cdot 1 \cdot 3 = 12$ Operationen\\
+C $\cdot$ D [:= (1 x 2)] $\Rightarrow$ ergibt [4 x 2] $4 \cdot 2 \cdot 1 = 8$ Operationen\\
+D $\cdot$ E [:= (2 x 2)] $\Rightarrow$ ergibt [4 x 2] $4 \cdot 2 \cdot 2 = 16$ Operationen\\
+E $\cdot$ F [:= (2 x 3)] $\Rightarrow$ ergibt [4 x 3] $4 \cdot 3 \cdot 2 = 24$ Operationen\\	
+Reihenfolge spielt große Rolle: \\
+$(((((A \cdot B) \cdot C) \cdot D) \cdot E) \cdot F) \rightarrow 84$ Operationen\\
+$(A \cdot (B \cdot (C \cdot (D \cdot (E \cdot F))))) \rightarrow 69$ Operationen\\
+\ \\
+$\rightarrow$ brauche \textbf{Optimale Klammerung}\\
+Teilproblem: $A_i, ..., A_j$ wird geklammert $(A_i... A_k)(A_{k+1}...A_j)$\\
+d. h. $\forall i \leq k \leq j$\\
+berechne $(A_i... A_k)$ und $(A_{k+1}...A_j)$; multipliziere $A_{i,k}$ mit $A_{k+1, j}$. Wähle dazu bestes $k$.\\
+\textbf{Beachte:} Innerhalb der Teilprobleme muss Klammerung optimal sein.\\
+Also berechne nun Kosten für alle Teilprobleme $A_i \cdot \cdot \cdot A_j$ für alle $1 \leq i \leq j \leq n$.
+$\Rightarrow$ MIN[1, n] ist Minimum aller Multiplikationen für $A_1 \cdot A_2 \cdot ... \cdot A_n$.\\
+Sei $A_i$ Matrix mit Dimension $p_{i_1} \times p_i$\\
+rekursiv $\Rightarrow$ MIN[i, j] = min$\lbrace MIN[i, k] + MIN[k+1, j] + p_{i-1} \cdot p_k \cdot p_j\rbrace$\\
+MIN[i, j] = 0 für $i = j$\\
+Speichern noch $s[i, j]$ ab mit $k$ als den Wert, der MIN[$i, j$] bestimmt.\\
+\begin{algorithmic}
+\State n := Anzahl Matrizen;
+\For{i $\in [1, n]$}  \State{
+	MIN[i, i] := 0;}
+\EndFor
+\For{l $\in [2, n]$}  \State{
+	\For{i $\in [1, n-l+1]$} \State{
+		j := i + l -1;\\
+		MIN[i, j] := $\infty$;\\
+		\For{k $\in [i, j-1]$}  \State{
+			q := MIN[i, k] + MIN[k+1, j] + $p_{i-1} \cdot p_k \cdot p_j$
+			\If{q < Min[i, j]} \State{
+				MIN[i, j] := q;\\
+				s[i, j] := k;
+			}
+			\EndIf
+		}
+		\EndFor
+	}
+	\EndFor
+}
+\EndFor
+\Return (MIN[1, n], s);
+\end{algorithmic}
+\textbf{Laufzeit:} 3 geschachtelte Vorschleifen mit Länge $\leq n$\\
+innerer Schleifenrumpf: $\mathcal O(1)$\\
+$\Rightarrow \mathcal O(n \cdot n \cdot n) = \mathcal O(n^3)$\\
+genauer: l = 2, ..., n-1\\
+$\sum\nolimits_{l = 2}^{n-1}(n - l)\cdot(l-1) = \sum\nolimits_{l = 2}^{n-1}(n-l-1) \cdot l = \sum\nolimits_{l = 2}^{n-1} nl - l^2 - l$
+\ \\
+\ \\
+\ \\
+\section{Greedy-Algorithmen}
+\ \\
+Optimierungsproblem: lokale Entscheidungen\\
+$\rightarrow$ globales Optimum\\
+\ \\
+
+\subsection{Beispiel: Jobauswahl}
+$n$ Jobs $a_1, ..., a_n$ mit Startzeit $s_i$, Endzeit $e_i$. $a_i$ und $a_j$ kompatibel, falls Intervalle nicht überlappen\\
+Aufgabe: Maximale Anzahl kompatibler Jobs.\\
+Bsp:\\
+\begin{tabular}{c c c c c c c c c c c c}
+$a_i$ & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11\\
+$s_i$ & 1 & 3 & 0 & 5 & 3 & 5 & 6 & 8 & 8 & 2 & 12\\
+$e_i$ & 4 & 5 & 6 & 7 & 9 & 9 & 10 & 11 & 12 & 14 & 16\\
+\end{tabular}
+
+besser: $\lbrace a_1, a_4, a_9, a_11 \rbrace$\\
+Geht es besser?\\
+\ \\
+\subsection{dynamisches Programmieren}
+optimale Lösung besteht aus optimalen Teillösungen\\
+$\rightarrow$ Wähle die beste Kombination aus optimalen Teillösungen.\\
+\underline{Greedy:} Betrachte nur \emph{eine} Kombination, nicht alle.\\
+Seien $S_{i, j}$ die Jobs, die starten, nachdem $a_i$ endet, und die enden, bevor $a_j$ startet.\\
+Suche maximale Anzahl kompatibler Jobs in $S_{i, j}$.\\
+Sei $A_{i, j}$ so eine Menge und sei $a_k \in A_{i, j}$. Ist $a_k \in$ OPT, so ergeben sich Teilprobleme $S_{i, k}$ und $S_{k, j}$ mit \\
+$A_{i, k} = A_{i, j} \cap S_{i, k}$ und $A_{k, j} = A_{i, j} \cap S_{k, j}$ und $A_{i, j} = A_{i, k} \cup \lbrace a_k \rbrace \cup A_{k, j}$\\
+Optimale Menge $A_{i, j}$ setzt sich zusammen aus $a_k$ und sich ergebenen optimalen Mengen $S_{i, k}$ und $S_{k, j}$.\\
+$\rightarrow$ \emph{Dynamisches Programmieren:} $c[i, j]$ optimale Anzahl von Jobs für $S_{i, j}$.\\
+$c[i, j] = 0$ falls $S_{i, j} = \emptyset$\\
+$c[i, j] = max\lbrace c[i, k] + c[k, j] +1 \rbrace$ ($a_k \in S_{i, j}$\\
+$\rightarrow$ Laufzeit: $\mathcal O(n^3)$\\
+\ \\
+\textbf{Name:} Max. unabhängige Menge in Intervallgraphen\\
+\underline{Greedy:} \\
+\emph{Idee: } Wähle den Job als ersten, der als erstes endet.\\
+$\rightarrow a_1$: lasse alle weg, die mit $a_1$ nicht kompatibel sind.\\
+$\rightarrow$ Iteriere.\\
+Einfach, wenn Jobs sortiert nach Endzeitpunkten.\\
+Zeige durch Widerspruch, dass allgemein immer eine optimale Lösung existiert, wo der Job mit dem frühesten Ende drin ist.\\
+In optimaler Lösung: Kann den 1. Job, falls er nicht am frühesten endet, durch einen anderen Job ersetzen, der früher endet (Der Rest der Jobs davon nicht betroffen).\\
+
+\textbf{Algorithmus:}\\
+Felder $s, e$ halten Index $k$ ($k$ letzter gefundener Job)\\
+Jobs nach Endzeit sortiert.\\
+Aufruf Jobauswahl(0) liefert $a_o$ fiktiv mit $c_0 = 0$\\
+\begin{algorithmic}
+\Function{Jobauswahl}{k}
+$i := k+1$;\\
+\While{$i \leq n \wedge s[i] < e[k]$} \State{
+	$i++;$}
+\EndWhile
+\If{$i \leq n$} \State{
+	\textbf{return} $\lbrace a_i \rbrace$ und Jobauswahl($i$)}
+\Else \State{\textbf{return} $\emptyset$}
+\EndIf
+\EndFunction
+\end{algorithmic}
+Laufzeit: $\mathcal O(n)$ jeder Job nur einmal betrachtet\\
+\textbf{iterativ:}
+
+\begin{algorithmic}
+\State A := $\lbrace A_1 \rbrace$; 
+\State $ k := 1$;
+\For{$i \in [2, n]$}  \State{
+	\If{$s[1 \geq e[k]$} \State{
+		A := A $\cup \lbrace a_i \rbrace$;
+		$k$ := 1;}
+	\EndIf}
+\EndFor
+\Return A;
+\end{algorithmic}\ \\
+
+Allgemein:\\
+\begin{itemize}
+	\item[-] bestimme Teilstruktur des Problems
+	\item[-] rekursive Lösung
+	\item[-] Greedy-Variante: nur 1 Teilproblem
+	\item[-] zeige, dass Greedy zum Optimum führt
+	\item[-] rekursiver Algorithmus
+	\item[-] iterativer Algorithmus
+\end{itemize}
+
+\emph{Geht das immer?}\\
+Beispiel: Gewichtetes Rucksackproblem\\
+$n$ Gegenstände $g_1, ..., g_n$; $g_i$ hat Wert $v_i$ und Gewicht $w_i$. Träger kann $\leq W$ Kilogramm tragen.\\
+Maximiere Gesamtwert der Ladung.\\
+
+\textbf{dynamische Programmierung:}\\
+Wertvollste Ladung mit $\leq W$ Kg Gewicht besteht aus einem $g_j$ mit Wert $v_j$ und dem Rest mit Gewicht $\leq W - w_j$.\\
+\underline{Greedy:}\\
+Strategie: 
+\begin{itemize}
+	\item[-] $g_j$ mit größtem Wert
+ 	\item[-] $g_j$ mit kleinstem Gewicht
+ 	\item[-] $g_j$ mit größtem Wert pro Kilogramm
+\end{itemize}
+Beispiel:\\
+kleinstes Gewicht; w = 50\\
+\begin{tabular}{c c c}
+$w_1 = 10$ & $v_1 = 280$ & $\rightarrow w_1, w_2 \rightarrow 380$ \\
+$w_2 = 20$ & $v_2 = 100$ & ""\\
+$w_3 = 30$ & $v_3 = 120$ & besser ist $w_1, w_3$\\
+\end{tabular}
+\\
+\\
+\\
+größter Wert pro Kilo;\\
+\begin{tabular}{c c c}
+$w_1 = 10$ & $v_1 = 60$ & $\rightarrow (greedy) w_1, w_2 \rightarrow 380$ \\
+$w_2 = 20$ & $v_2 = 100$ & ""\\
+$w_3 = 30$ & $v_3 = 120$ & besser ist $w_2, w_3$\\
+\end{tabular}
+\\
+\\
+\\
+\textbf{dynamische Programmierung:} $\mathcal O(n \cdot W)$\\
+------------------------------------------------------------------\\
+1 | 2 | 3 |.......... |17| ...... |Q|.............................|W|\\
+------------------------------------------------------------------\\
+ Wertvollste Ladung mit Gewicht = 23
+(//sollte überarbeitet werden)\\
+\\
+\emph{Variante:} Gegenstände sind teilbar.\\
+\underline{Greedy:} (funktioniert hier) \\
+
+\begin{algorithmic}
+\State{Ordne Gegenstände nach Wert pro Kilogramm;}
+\State{Lege $g_1$ in den Rucksack;}
+\State $i := 2$
+\While{W nicht erreicht}
+  \State{
+	Stecke $g_i$ in den Rucksack;
+	i++;}
+\EndWhile
+\Comment{Teile $g_i$ auf und fülle Rucksack mit Teil von $g_i$;}
+\end{algorithmic}
+Laufzeit: $\mathcal O (n)$

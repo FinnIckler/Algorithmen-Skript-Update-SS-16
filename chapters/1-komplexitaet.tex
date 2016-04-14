@@ -1,0 +1,76 @@
+% Copyright \copyright\ 2010  Volodymyr Piven und Alexander Peltzer.
+% Es wird die Erlaubnis gegeben, dieses Dokument unter den Bedingungen der von der Free
+% Software Foundation veröffentlichen  GNU Free
+% Documentation License (Version 1.2 oder neuer) zu kopieren, verteilen und/oder
+% zu verändern. Eine Kopie dieser Lizenz ist unter
+% http://www.gnu.org/copyleft/fdl.txt erhältlich.
+%
+% Copyright der Aktualisierung und Überarbeitung \copyright\ 2013  Simon Kalt, Jan-Peter Hohloch, Tobias Fabritz
+% Es wird die Erlaubnis gegeben, dieses Dokument unter den Bedingungen der von der Free
+% Software Foundation veröffentlichen  GNU Free
+% Documentation License (Version 1.2 oder neuer) zu kopieren, verteilen und/oder
+% zu verändern. Eine Kopie dieser Lizenz ist unter
+% http://www.gnu.org/copyleft/fdl.txt erhältlich.
+%
+% Zusätzlich muss jede Kopie/Aktualisierung wieder über die Seite
+% der Fachschaft Informatik der Uni Tübingen
+% den Studenten zur Verfügung gestellt werden
+% http://www.fsi.uni-tuebingen.de/
+
+\chapter{Komplexität}
+    \section{$\LO$-Notation}
+    $f(n) = \LO(g(n))$ (obere Schranke), wenn 
+    $$
+        \exists \ c ,\ n_0 > 0 \ \forall \ n \geq n_0: 0 \leq f(n) \leq c \cdot g(n)
+    $$\\
+    $f(n) = \Omega(g(n))$ (untere Schranke), wenn
+    $$
+    		\exists \ c ,\ n_0 > 0 \ \forall \ n \geq n_0: 0\leq c\cdot g(n)\leq f(n)
+    $$\\
+    $f(n) = \Theta(g(n))$ (scharfe Schranke), wenn
+    $$
+    		\exists \ c_1,c_2 ,\ n_0 > 0 \ \forall \ n \geq n_0: 0\leq c_1\cdot g(n)\leq f(n)\leq c_2\cdot g(n)
+    $$
+    \textit{Anmerkung:} \\
+ 	 Mit $f(n) = \LO(g(n))$ ist gemeint $f(n) \in \LO(g(n))$ \\
+     $\Theta(g(n))=\LO(g(n))\cap \Omega(g(n))$
+    
+    \section{Nützliche Rechenregeln}
+        Logarithmen:
+        
+        \begin{align*}
+            \log(a \cdot b) &= \log a + \log b \\
+            \log_a b &= \frac{\log b}{\log a} \\
+            \log a^b &= b \cdot \log a \\
+            b^{\log_b a} &= a 
+        \end{align*}
+
+        Andere nützliche Regeln:
+        \begin{itemize}
+            \item Stirling-Approximation:
+            $$
+                n! = \sqrt{2 \pi n} \cdot \left(\frac{n}{e}\right)^n \left(1+\LO\left(\frac{1}{n}\right)\right)
+            $$
+            Eine einfachere Abschätzung ist:
+            $$
+                \left(\frac{n}{2}\right)^{\frac{n}{2}} \leq n! \leq n^n
+            $$
+            \item Gauß'sche Summenformel:
+            $$
+                \sum \limits_{k=1}^n k = \frac{n(n+1)}{2}
+            $$
+            \item geometrische Reihe:
+            \begin{align*}
+                &\sum \limits_{k=0}^n q^k = \frac{q^{n+1}-1}{q-1} \\
+                &\sum \limits_{k=0}^\infty q^k = \frac{1}{1-q} \ \ \text{  für } \abs{q} < 1
+            \end{align*}
+            Also zB für $q= \frac{1}{2}: 1 + \frac{1}{2} + \frac{1}{4} + \frac{1}{8} + \ldots = 2$ 
+            \item Ebenfalls gilt (Ableitung):
+            $$
+                \sum \limits_{k=0}^\infty k \cdot q^{k-1} = \frac{1}{(1-q)^2} \ \ \text{  für } \abs{q} < 1
+            $$ 
+            \item n-te harmonische Zahl:
+            $$
+                H_n = 1 + \frac{1}{2} + \frac{1}{3} + \frac{1}{4} + \ldots + \frac{1}{n} = \sum \limits_{k=1}^n \frac{1}{k} = \ln n + \LO(1)
+            $$
+        \end{itemize}

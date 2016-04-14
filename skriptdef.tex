@@ -1,0 +1,133 @@
+% \usepackage{empheq}
+% \let\SavedRightarrow=\Rightarrow
+%   \usepackage{marvosym}
+% \let\Rightarrow=\SavedRightarrow
+%\usepackage[hyperref,amsmath,thmmarks,thref]{ntheorem}
+\usepackage{amsthm}
+
+% \makeatletter
+% \newtheoremstyle{numberempty}%
+% 	{\item[\theorem@headerfont \llap{##2}\hskip\labelsep \theorem@separator]}%
+% 	{\item[\theorem@headerfont \llap{##2}\hskip\labelsep ##3\theorem@separator]}
+% \makeatother
+
+
+%%
+%%    Neue Umgebungen
+%%
+
+
+%%
+%%
+%%
+
+% Definition der Umgebungen
+%\theoremheaderfont{\normalfont\bfseries}
+%\setlength{\theorempreskipamount}{3ex}
+\theoremstyle{marginbreak}
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{satz}[lemma]{Satz}
+\theoremstyle{nonumberbreak}
+\newtheorem{nnsatz}{Satz}
+
+
+\theoremstyle{margin}
+\newtheorem{theorem}[lemma]{Theorem}
+\newtheorem{korollar}[lemma]{Korollar}
+
+%\theorembodyfont{\upshape}
+\newtheorem{example}[lemma]{Beispiel}
+\newtheorem{examples}[lemma]{Beispiele}
+\newtheorem{definition}[lemma]{Definition}
+
+\newtheorem{folgerung}[lemma]{Folgerung}
+\newtheorem{bemerkung}[lemma]{Bemerkung}
+\newtheorem{problem}[lemma]{Problem}
+\newtheorem{exkurs}[lemma]{Exkurs}
+\newtheorem{motivation}[lemma]{Motivation}
+\newtheorem{erinnerung}[lemma]{Erinnerung}
+\newtheorem{verfahren}[lemma]{Verfahren}
+\newtheorem{dummy}[lemma]{}
+\newtheorem{anwendung}[lemma]{Anwendung}
+\newtheorem{sundd}[lemma]{Satz und Definition}
+
+\theoremstyle{numberempty}
+\newtheorem{nokeyword}[lemma]{}
+
+\theoremstyle{nonumberplain}
+\newtheorem{bsp}{Beispiel}
+\newtheorem{annahme}{Annahme}
+\newtheorem{bspe}{Beispiele}
+\newtheorem{nnbemerkung}{Bemerkung}
+\newtheorem{nnziel}{Ziel}
+\newtheorem{nnanwendung}{Anwendung}
+\newtheorem{nnproblem}{Problem}
+\newtheorem{nnfolgerung}{Folgerung}
+\newtheorem{nnkorollar}{Korollar}
+\newtheorem{nnmotivation}{Motivation}
+\newtheorem{notmiss}{Notationsmissbrauch}
+\newtheorem{nndefinition}{Definition}
+\newtheorem{nnlemma}{Lemma}
+\newtheorem{nnbeobachtung}{Beobachtung}
+\newtheorem{nnfragen}{Fragen}
+\newtheorem{nnfrage}{Frage}
+\newtheorem{nnnotation}{Notation}
+\newtheorem{nnbehauptung}{Behauptung}
+\newtheorem{nndummy}{}
+
+\renewcommand{\proofname}{Beweis}
+
+
+
+
+%\theoremheaderfont{\sc}
+\theoremstyle{nonumberplain}
+%\theoremsymbol{\ensuremath{\diamond}}
+\newtheorem{zbeweis}{Zwischenbeweis}
+
+%\theoremlisttype{allname}
+
+% Damit hyperref auch zufrieden ist:
+% \makeatletter
+% \providecommand*{\toclevel@sundd}{0}
+% \providecommand*{\toclevel@example}{0}
+% \providecommand*{\toclevel@proof}{0}
+% \providecommand*{\toclevel@lemma}{0}
+% %\providecommand*{\toclevel@satz}{0}
+% \providecommand*{\toclevel@theorem}{0}
+% \providecommand*{\toclevel@korollar}{0}
+% \providecommand*{\toclevel@definition}{0}
+% \providecommand*{\toclevel@bsp}{0}
+% \providecommand*{\toclevel@bspe}{0}
+% \providecommand*{\toclevel@axiom}{0}
+% \providecommand*{\toclevel@bemerkung}{0}
+% \providecommand*{\toclevel@folgerung}{0}
+% \providecommand*{\toclevel@nnbemerkung}{0}
+% \providecommand*{\toclevel@problem}{0}
+% \providecommand*{\toclevel@nnproblem}{0}
+% \providecommand*{\toclevel@notmiss}{0}
+% \providecommand*{\toclevel@nnfolgerung}{0}
+% \providecommand*{\toclevel@nbeweis}{0}
+% \providecommand*{\toclevel@nnkorollar}{0}
+% \providecommand*{\toclevel@nnmotivation}{0}
+% \providecommand*{\toclevel@exkurs}{0}
+% \providecommand*{\toclevel@nndefinition}{0}
+% \providecommand*{\toclevel@nnlemma}{0}
+% \providecommand*{\toclevel@motivation}{0}
+% \providecommand*{\toclevel@erinnerung}{0}
+% \providecommand*{\toclevel@dummy}{0}
+% \providecommand*{\toclevel@nnbeobachtung}{0}
+% \providecommand*{\toclevel@examples}{0}
+% \providecommand*{\toclevel@nnfragen}{0}
+% \providecommand*{\toclevel@nnfrage}{0}
+% \providecommand*{\toclevel@verfahren}{0}
+% %\providecommand*{\toclevel@nnsatz}{0}
+% \providecommand*{\toclevel@nnnotation}{0}
+% \providecommand*{\toclevel@anwendung}{0}
+% \providecommand*{\toclevel@zbeweis}{0}
+% \providecommand*{\toclevel@nndummy}{0}
+% \providecommand*{\toclevel@nnziel}{0}
+% \providecommand*{\toclevel@nnbehauptung}{0}
+
+% \makeatother
+

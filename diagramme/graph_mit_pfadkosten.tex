@@ -1,0 +1,20 @@
+\begin{tikzpicture}[->,node distance=3cm]
+  \node[state] (1) {1};
+	\node[state] (2) [above right of=1] {2};
+	\node[state] (3) [right of=1] {3};
+	\node[state] (4) [right of=2] {4};
+	\node[state] (5) [right of=3] {5};
+	
+	\path
+			(1) edge node[above left]{2} (2)
+			(1) edge[bend right] node[below]{3} (3)
+			
+			(2) edge node[right]{-3} (3)
+			(2) edge node[above]{-1} (4)
+			
+			(3) edge[bend right] node[above]{-1} (1)
+			(3) edge node[below]{1} (5)
+			(3) edge node[right]{2} (4)
+			
+			(4) edge node[right]{3} (5);
+\end{tikzpicture}

@@ -1,0 +1,15 @@
+\begin{tikzpicture}[
+    edge from parent path=
+    {(\tikzparentnode.south) .. controls +(0,-.5) and +(0,.5)
+        .. (\tikzchildnode.north)},
+    every node/.style={draw,circle},
+    label distance=-1mm,
+    level/.style={sibling distance = 5cm/#1,
+    level distance = 1.5cm}]
+    \node [label=330:$1$]{1}
+        child {node[label=330:$-1$] {$\square$}}
+        child {node[label=330:$0$] {$2$}
+            child {node[label=330:$-1$] {$\square$}}
+            child {node[label=330:$-1$] {$\square$}}
+        };
+\end{tikzpicture}

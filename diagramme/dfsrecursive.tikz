@@ -1,0 +1,27 @@
+\begin{tikzpicture}[->,>=stealth', every node/.style={draw, ellipse}, node distance=2cm]
+	\node (a) {$a|1|6$};
+	\node (b) [above of=a] {$b|2|5$};
+	\node (c) [above of=b] {$c|3|1$};
+	\node (d) [right of=b] {$d|4|4$};
+	\node (e) [above of=d] {$e|5|3$};
+	\node (f) [right of=e] {$f|6|2$};
+	\node (g) [below right of=d] {$g|7|7$};
+	
+	\path[draw] 
+		(a) edge (b)
+		(b) edge (c)
+		(b) edge (d)
+		(d) edge[bend left] (e)
+		(e) edge (f);
+		
+	\path[draw, dotted]
+		(d) edge (f);
+	
+	\path[draw, densely dashed]
+		(e) edge[bend left] (d);
+		
+	\path[draw, loosely dashed]
+		(e) edge (c)
+		(f) edge[bend right] (c)
+		(g) edge (d);
+\end{tikzpicture}

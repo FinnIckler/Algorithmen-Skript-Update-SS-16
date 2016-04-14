@@ -1,0 +1,282 @@
+% Copyright \copyright\ 2013  Simon Kalt, Jan-Peter Hohloch, Tobias Fabritz
+% Es wird die Erlaubnis gegeben, dieses Dokument unter den Bedingungen der von der Free
+% Software Foundation veröffentlichen  GNU Free
+% Documentation License (Version 1.2 oder neuer) zu kopieren, verteilen und/oder
+% zu verändern. Eine Kopie dieser Lizenz ist unter
+% http://www.gnu.org/copyleft/fdl.txt erhältlich.
+%
+% Zusätzlich muss jede Kopie/Aktualisierung wieder über die Seite
+% der Fachschaft Informatik der Uni Tübingen
+% den Studenten zur Verfügung gestellt werden
+% http://www.fsi.uni-tuebingen.de/
+
+\chapter{Patternmatching} 			
+    \section{Patternmatching auf Strings}
+        Sei $T$ ein String über dem Alphabet $\Sigma$. Dabei sei $T[1..n], 1 \leq i \leq j \leq n$ ein Teilstring von Stelle $i$ bis Stelle $j$. Gegeben sei nun ein String $T[1..n]$ und ein Pattern $P[1..m]$ mit $m << n$. Suche nun $P$ in $T$.
+        
+        \subsection{Naive Lösung}
+            Man schiebt das Pattern durch den String und vergleicht jeweils alle Stellen.
+\begin{verbatim}
+for s <- 1 to n-m+1 do
+    Teste ob T[s..s+m-1] = P
+od
+\end{verbatim}
+            Dies findet alle Vorkommen und hat eine Laufzeit von $\LO(n \cdot m )$
+            
+        \subsection{Algorithmus von Knuth/Morris/Pratt}
+            \subsubsection{Idee}
+                Verschiebe $P$ nicht nur um 1. Betrachte P. Berechne für alle q
+                $$
+                    \Pi(q) = \max \set{k | P[1..k] \text{ ist echtes Suffix von } P[1..q]}
+                $$
+                Verschiebe P so, dass $P[\Pi(q-1)+1]$ auf $T[j]$. Wir suchen das kleinste $s' > s$ so dass $P[1..k]-T[s'+1,..,s'+k]$ mit $s'+k = s + q$.
+\begin{verbatim}
+P        ababaa
+Index    123456
+PI(i)    001231
+\end{verbatim}
+            \subsubsection{Algorithmus für Präfixfunktion}
+\begin{verbatim}
+Präfixfunktion(P)
+
+PI(1) <- 0, k <- 0
+for q<- 2 to m do
+    while k>0 and P[k+1] != P[q] do
+        k <- PI(k)
+    od
+    if P[k+1]=P[q] then 
+        k <- k+1
+    fi
+    PI(q) <- k
+od
+\end{verbatim}
+
+            \subsubsection{Laufzeit}
+                In der while-Schleife befinden wir uns nur wenn $k>0$ und innerhalb der while-Schleife wird $k$ immer erniedrigt. In jeder for-Iteration wir $k$ einmal erhöht, d.h. es steigt nur $n$ mal. Es kann also auch nur maximal m Erniedrigungen geben. Damit haben wir Laufzeit $\LO(m)$
+                
+            \subsubsection{Algorithmus}
+\begin{verbatim}
+Gesamt
+Sei n,m,T,P,PI gegeben
+
+q <- 0
+for i <- 1 to n do
+    while q > 0 and P[q+1] != T[i] do
+        q <- PI(q)
+    od
+    
+    if P[q+1] = T[i] then
+        q <- q+1
+    fi
+    
+    if q=m then
+        // P kommt ab (i-m+1)-ter Stelle vor
+        q <- PI(q)
+    fi
+od
+\end{verbatim}
+            \subsubsection{Laufzeit}
+                Amortisierungsargument wie bei Präfix, also Laufzeit $\LO(n)$
+                
+            \subsubsection{Beispiel}
+                Siehe Wikipedia\footnote{\url{http://de.wikipedia.org/wiki/Knuth-Morris-Pratt-Algorithmus}}
+                
+    \subsection{Algorithmus von Boyer/Moore}
+\begin{verbatim}
+Naiv:
+
+s<-0
+while s <= n-m do
+    j <- m
+    while j > 0 and P[j] = T[s+j] do
+        j <- j-1
+    od
+    
+    if j = 0 then
+        //P kommt ab Stelle s+1 vor
+        s<- s+1    // ersetze durch s <- s+ gamma[0]
+    else
+        s <- s+ 1  //ersetze durch s <- s + max{gamme[j], j-lambda[T[s+j]]}
+                   //hierzu brauchen wir "gutes Suffix" und schlechter Buchstabe
+    fi
+od      
+\end{verbatim}
+        Berechne $\lambda$ als letztes Vorkommen$(P,m,\Sigma)$ und $\gamma$ als gutes Suffix$(P,m)$.
+        
+        \subsubsection{Schlechter Buchstabe}
+            sei $P[i] \neq T[s+j]$ ein gefundenes Mismatch. Das ist gut wenn $T[s+j]$ gar nicht vorkommt, sonst verschiebe bis zum Vorkommen. Dann sei
+            $$
+                k = \max \set{i | T[s+j] = P[i]} \text{ falls T[s+j] in P, sonst } 0
+            $$
+            \begin{lemma}
+                s kann um $j-k$ verschoben werden.
+            \end{lemma}
+            \begin{proof}
+                \begin{enumerate}
+                    \item $k=0$: $T[s+j]$ kommt nicht vor, ist also schlechter Buchstabe. Wir verschieben um $j$ bis hinter diesen Buchstaben
+                    \item $k<j$: $T[s+j]$ kommt in P links von Stelle j vor und $j-k>0$. Verschiebe P um $j-k$.
+                \end{enumerate}
+            \end{proof}
+            Brauchen für jedes $x \in \Sigma$ die am weitesten rechts stehende Position von $a$ in $P$ also $a = P[\lambda(a)]$.
+\begin{verbatim}
+Berechne Lambda:
+
+for all a \in Sigma do
+    lambda(a) <- 0
+od
+for j <- 1 to m do
+    \lambda[P[j]] <- j
+od
+\end{verbatim}
+
+            \subsubsection{Gutes Suffix}
+                \emph{Idee:} Falls Mismatch $P[j] \neq T[s+j]$ verschiebe P um 
+                $$
+                    \gamma[j] \rightarrow m - \max \set{k | P[1..k] \text{ ist Suffix von }P[j+1,..,m]}
+                $$
+                Ähnlich wie Präfixfunktion
+                
+        \subsection{Random Ansatz: Fingerabdruck (Karp/Rabin)}
+            Sei $\Sigma = \set{0,...,9}$, $x$, $y$ sind dann natürliche Zahlen. $F_p: \mathbb{Z} \rightarrow \mathbb{Z}_p$ mit $F_P(z) = z \mod p$ und $p$ Primzahl.
+            
+            \subsubsection{Algorithmus}
+\begin{verbatim}
+p <- zufällige Primzahl zwischen 2 und mn^2log(mn^2)
+match <- false
+i <- 1
+
+while not match and 1 <= i <= n-m+1 do
+    if F_p(X(i)) = F_p(Y) then
+        match <- true
+    else
+        i <- i+1
+        berechne F_p(X(i))
+    fi
+od
+\end{verbatim}
+        \subsubsection{Beispiel}
+        Sei X: 2 3 7 5 8 6 1 2 3 5 und m=4
+        $$
+            F_p(X(i+1)) = (10(F_p(X(i)) - 10^{m-1}x_i)+x_{i+m}) \mod p
+        $$
+        Es ist nötig $10^{m-1}$ vorzuberechnen, ansonsten geht es in $\LO(1)$
+        
+        \begin{satz}
+            Algorithmus von Karp/Rabin läuft in $\LO(n+m)$ und hat Fehlerwahrschienlichkeit von $\LO\left(\frac{1}{n}\right)$
+        \end{satz}
+        
+        \begin{proof}
+            Was ist $\text{prob}(F_p(Y)=F_p(X(i)) | Y \neq X(i))$. Sei $a = Y$, $b = X(i)$. $a \mod p = b \mod p \Leftrightarrow p | (a-b)$ Es gilt $\abs{a-b} \leq 10^m \leq 2^{4m}$. Damit $\abs{a-b} < 2^{4m}$ hat $\leq(4m)$ verschiedene Primfaktoren. Haben p aus dem Bereich $[2, mn^2\log(mn^2)]$. In diesem bereich gibt es
+            $$
+                \LO\left( \frac{mn^2\log(mn^2)}{\log(mn^2\log(mn^2)}\right) = \LO(mn^2)
+            $$
+            Primzahlen. Für festes $i$ gilt also
+            $$
+                \text{prob}(F_p(Y) = F_p(X(i)) | Y \neq X(i)) = \LO \left(\frac{4m}{mn^2}\right) = \LO \left(\frac{1}{n^2} \right)
+            $$
+            Gesamt also
+            $$
+                \LO((n-m+1) \frac{1}{n^2}) = \LO(\frac{1}{n})
+            $$
+        \end{proof}
+        
+        \subsubsection{Von Monte Carlo nach Las Vegas}
+        \begin{enumerate}
+            \item Falls $F_p(X(i)) = F_p(Y)$ teste in $\LO(m)$ ob $X(i) = y$. Falls nicht starte naiven Algorithmus. Das ergibt eine erwartete Laufzeit von 
+            $$
+                \LO((n+m)(1-\frac{1}{n})+(n\cdot m) \frac{1}{n}) = \LO(n+m)
+            $$
+            \item Falls $F_p(X(i)) = F_p(Y)$ teste in $\LO(m)$ ob $X(i) = y$. Falls nicht starte von dort mit neuem zufälligem $p$. Das ergibt eine neue Fehlerwahrscheinlichkeit von $\text{prob(t. Iteration des Algorithmus)}=\LO(\frac{1}{n^t})$       
+        \end{enumerate}
+        
+        
+    \subsection{Preprocessing von Suffixbäumen}
+        Sei S ein String der Länge $n$ und $P$ ein Pattern der Länge $m$. Preprocessing des Patterns geht in $\LO(m)$. Jetzt machen wir ein Preprocessing des Strings in $\LO(n)$. Damit erhalten wir insgesamt eine Laufzeit von $\LO(m)$ anstatt $\LO(n+m)$.
+        
+        \subsubsection{Beispiel zu Suffixbäumen}
+            String sei a a b b a b b und einem Sonderzeichen am Ende.
+            
+            % Hier Baum einfügen
+            
+            Patternsuche geht einfach: Ablesen des Patterns im Baum. Ablesen der Stellenzahlen unter den gefundenen Patterns.
+            
+        \subsubsection{Definition}
+            Baum $T$ für String $S$ hat n Blätter, nummeriert von 1 bis $n$
+            \begin{itemize}
+                \item Jeder innere Knoten hat $\geq 2$ Kinder
+                \item Jede Kante ist mit Teilwort aus $S$ markiert
+                \item Kanten aus demselben Knoten haben Markierungen mit versch. ersten Zeichen
+                \item Konkatentationen der Kantenmarkierungen von Wurzel zum Blatt $i$ ergibt den Suffix der bei $i$ beginnt.
+            \end{itemize}
+            Laufzeit für Patternsuche ist $\LO(m+k)$ wenn es $k$ Vorkommen des Pattern gibt. Wenn ein Baum bereits aufgebaut ist geht die Suche in $\LO(\abs{P})$ wobei $\abs{P}$ die Länge des Patterns ist.
+            
+        \subsubsection{Aufbau des Baumes}
+            \begin{enumerate}
+                \item Starte mit Einzelkante für $S[1...n]$
+                \item \emph{Iteriere:} Sei $T_i$ Baum der Suffixe $S[1...n],...,S[i...n]$. Starte in Wurzel. Suche einen möglichst Langen Pfad für Suffix $S[i+1...n]$ in $T_i$, der mit Präfix von $S[i+1...n]$ übereinstimmt. 
+                \begin{enumerate}
+                    \item Pfad endet auf Kante $(u,v)$. Dort endet Übereinstimmung. Teile $(u,v)$ in $(u,w)$ und $(w,v)$ und markiere entsprechend. Füge neue Kante an $(w, \text{Blatt}(i+1)$ ein mit Markierung restl. Suffix von $S[i+1...n]$
+                    \item Pfad endet auf Knoten $v$. Füge neue Kante $(w, \text{Blatt}(i+1)$ ein
+                \end{enumerate}
+            \end{enumerate}
+            Laufzeit ist $\LO(\sum_{i=1}^{n}{i}) = \LO(n^2)$
+            
+            
+        \subsubsection{Verallgemeinerung}
+            Es gebe nun mehrere Strings $S_1,S_2,...,S_q$, die mit $\$_1,\$_2,...$ enden. Wir konkatenieren nun die Strings und bauen Suffixbaum für den Superstring auf in $\LO(\abs{S_1} + \abs{S_2} +...)$. Da bei diesem Vorgehen über Stringgrenzen hinweg Suffixe entstehen, muss man bei einem Endzeichen ein Blatt entstehen lassen.
+            
+            %Hier fehlt ein Bsp mit ab$_1aa$_2
+            
+            Gegeben sei nun $S_1,S_2$ und wir suchen den größten gemeinsamen Teilstring in den beiden Strings.
+            \begin{enumerate}
+                \item Konstruiere Suffixbaum für $S_1$ und $S_2$
+                \item Innere Knoten werden mit 1/2 markiert falls sie zum Blatt mit Suffixen aus $S_1$ bzw $S_2$ führen.
+                \item Gemeinsame Teilstrings werden repräsentiert durch Pfade zu doppelt beschrifteten Knoten
+                \item Tiefensuche von Wurzel über solche 1/2 Knoten liefert größten gemeinsamen Teilstring
+            \end{enumerate}
+            Laufzeit ist $\LO(\abs{S_1}+\abs{S_2})$
+            
+        \subsubsection{Korollare}
+            \begin{enumerate}
+                \item Gegeben sei ein String S und Pattern $P_1,P_2,...$. Finde alle Vorkommen von $P_1,P_2,...,P_k$. Dies geht in Zeit $\LO(\sum_{i=1}^{k}{\abs{P_i}+z})$ wenn $z$ die Anzahl der Vorkommen ist.   
+                \item Gegeben seien $S_1,S_2$. Suche alle maximalen Wiederholungen.
+\begin{verbatim}
+S_1:  abbacbaa
+S_2:  abbcbbbb
+\end{verbatim}
+                Dies geht analog zum größten gemeinsamen Teilstring
+                \item Suche den am häufigsten Vorkommenden Teilstring. Das ist der Teilstring bis zum Knoten mit den meisten Kindern, da jedes Kind für ein Vorkommen des Knotens steht. Am einfachsten geht das, wenn man sich bei jedem Knoten die Anzahl der Kinder merkt
+                \item Suche die kürzesten Pattern aus $\Sigma*$, die nicht in $S_i$ vorkommen. Laufe BFS zur ersten Kante, die Mehrfachbeschriftungen hat, oder wo eine Kante aus $\Sigma$ fehlt. $\LO(\Sigma \abs{S})$
+                \item Suche das längste Palindrom in String $S$. Wir konkatenieren dazu $S$ mit $\overline{S}$ und suchen den längsten Teilstring.    
+            \end{enumerate}
+            
+    \subsection{Anwendung: Datenkompression}
+        Das Zvi-Lempel Verfahren.
+        \begin{definition}
+            Gegeben sei String $S$ der Länge $n$. $\text{Prior}_i$ sei das längste Präfix von $S[i..n]$, welches zugleich Teilstring aus $S[1... i-1]$ ist. Sei $l_i \leftarrow \abs{\text{Prior}_i}$ und für $l_i > 0$ sei $s_i$ die Anfangsposition des ersten Vorkommens von $\text{Prior}_i$ in $S[i... i-1]$.
+        \end{definition}
+\begin{verbatim}
+Bsp: S = abaxcabaxabz
+Prior_7 = bax
+l_7 = 3
+s_7 = 2
+\end{verbatim}
+        \emph{Idee:} Falls $S[1.. i-1]$ schon dargestellt und $l_i > 0$, so stelle die nächsten $l_i$ Stellen nicht explizit dar, sondern durch das Paar $(s_i,l_i)$           
+\begin{verbatim}
+Bsp: S = abacabaxabz
+-> ab(1,1)c(1,3)x(1,2)z
+S = (ab)^16
+-> ab(1,2)(1,4)(1,8)
+
+Algorithmus:
+i <- 1
+repeat berechne l_i, s_i
+    if l_i >0 then
+        return (s_i,l_i)
+        i<- i+l_i
+    else
+        return S[i]
+        i <- i+1
+until i>n
+\end{verbatim}
+            
