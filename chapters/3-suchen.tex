@@ -18,7 +18,6 @@
 % http://www.fsi.uni-tuebingen.de/
 
 \chapter{Suchen in geordneten Mengen}
-
     Gegeben ist ein Universum $U$, mit linearer Ordnung $(U, <)$. Sei nun $S \subseteq U$ die Menge der zu verwaltenden Schlüssel. Wir betrachten nun verschiedene Algorithmen in $S$ ein Element zu suchen.
     \begin{enumerate}[1.] 
         \item \emph{lineare Suche:} $S$ liege als geordnetes Array vor. Nun sei next, das Element, das als nächstes betrachtet wird. \\
@@ -29,7 +28,7 @@
         best case: $\LO(1)$\\
         worst case: $\LO(n), n \text{ Iterat.}, |S| = n$\\
         average case: $\frac{n}{2}$ Iterat. $= \LO(n)$
-        \item \emph{binäre Suche}: $S$ liege wieder als sortiertes Array vor. 2 Grenzen oben , unten als Indizes. Wir suchen wie in \autoref{alg:binarySearch} beschrieben.
+        \item \emph{binäre Suche}: $S$ liege wieder als sortiertes Array vor. 2 Grenzen oben , unten als Indizes. Wir suchen wie in \autoref{alg:binarySearch} beschrieben.\\
             \begin{algorithm}
         		\caption{Binary Search}
         		\label{alg:binarySearch}
@@ -39,9 +38,9 @@
         			    \State $\text{oben} \gets (n-1)$ \Comment{Array enthält $n$ Elemente}
         				\While{$\text{unten} < \text{oben}$}
         				    \State{$\text{next} \gets \lceil \frac{\text{oben} - \text{unten}}{2} \rceil + \text{unten}$}
-                            \If{ $S[\text{next}] = x$ }
+                            \If{ $S[\text{next}] = a$ }
                                 \State{\Return $\text{next}$}
-                            \ElsIf{$S[\text{next}] < x$}
+                            \ElsIf{$S[\text{next}] < a$}
                                 \State{$\text{unten} \gets \text{next}+1$}
                             \Else 
                                 \State{$\text{oben} \gets \text{next}-1$}
@@ -68,7 +67,7 @@
         S \lbrack \text{unten} \rbrack} \cdot \left( \text{oben} - \text{unten} \right)\right\rfloor + \text{unten}$\\
         \begin{tabbing}
             Laufzeit: \= worst case: $\LO(n)$\\
-            \> average case: $\LO(\log \log n)$
+            \> average case: $\LO(\log \log n)$\\
         \end{tabbing}
 
         \begin{figure}
@@ -114,6 +113,7 @@
             \begin{align*}
                 T(n) &\leq C + T(\sqrt{n}) \\
                 T(1) &= 1 \\
+				T(2) &= 1 \\
                 T(n) &= \LO(\log \log n) \text{falls } C \text{ konstant.}
             \end{align*}
             Berechnung:
