@@ -62,9 +62,28 @@
     \end{enumerate}
 
     \section{Interpolationssuche}
-
-        next $\leftarrow~\left\lfloor \frac{a - S \lbrack \text{unten} \rbrack}{S \lbrack \text{oben} \rbrack - 
-        S \lbrack \text{unten} \rbrack} \cdot \left( \text{oben} - \text{unten} \right)\right\rfloor + \text{unten}$\\
+		\begin{algorithm}
+        		\caption{Interpolation Search}
+        		\label{alg:interpolationsSearch}
+        		\begin{algorithmic}[1]
+        			\Function{Suche}{$a,S$}
+        			    \State $\text{unten} \gets 0$
+        			    \State $\text{oben} \gets (n-1)$ \Comment{Array enthält $n$ Elemente}
+        				\While{$a \geq S[\text{unten}]\ \&\&\ a \leq S[\text{oben}]$}
+        				    \State{next $\gets~\left\lfloor \frac{a - S \lbrack \text{unten} \rbrack}{S \lbrack \text{oben} \rbrack - 
+        S \lbrack \text{unten} \rbrack} \cdot \left( \text{oben} - \text{unten} \right)\right\rfloor + \text{unten}$}
+                            \If{ $S[\text{next}] = a$ }
+                                \State{\Return $\text{next}$}
+                            \ElsIf{$S[\text{next}] < a$}
+                                \State{$\text{unten} \gets \text{next}+1$}
+                            \Else 
+                                \State{$\text{oben} \gets \text{next}-1$}
+                            \EndIf    
+        				\EndWhile
+        				\State \Return $-1$
+        			\EndFunction
+        		\end{algorithmic}
+        	\end{algorithm}
         \begin{tabbing}
             Laufzeit: \= worst case: $\LO(n)$\\
             \> average case: $\LO(\log \log n)$\\
