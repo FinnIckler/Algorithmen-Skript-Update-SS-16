@@ -18,11 +18,15 @@
 % http://www.fsi.uni-tuebingen.de/
 
 \chapter{Sortieren}
-    $A: 11,3,4,5,4,12 \quad \rightarrow \quad B:3,6,6,7,11,12$\\
+    $A: 11,3,4,5,4,12 \quad \rightarrow \quad B:3,4,4,5,11,12$\\
     \begin{tabbing}
-        Verfahren: \= 1.Minimumsuche + Austausch mit 1. Element usw. $\LO(n^{2})$\\
-        \> 2.Insertionsort $\LO(n^{2})$\\
-        \> 3.Bubble Sort $\LO(n^{2})$\\
+        Verfahren: \= 1.Min\=imumsuchev + Austausch mit 1. Element usw. \\
+		\> \> $T(n) = \LO(n) + T(n-1) \underset{\text{kleiner Gauss}}{=} \LO(n^{2})$\\
+        \> 2.Insertionsort: Füge immer an richtige Stelle ein. Mache Platz\\
+		\> \>  $T(n) = T(n-1) + O(n) = \LO(n^{2})$\\
+        \> 3.Bubble Sort: In $i$-ter Iteration sind die ersten $i-1$ Stellen \\
+		\> schon sortiert. Tausche jeweils 'groß' gegen 'klein' aus $S[i,n]$\\
+		\>\>$T(n)= O(n) + T(n-1) = \LO(n^{2})$\\
         \> 4.Quicksort, Heapsort, MergeSort, BucketSort
     \end{tabbing}
         
