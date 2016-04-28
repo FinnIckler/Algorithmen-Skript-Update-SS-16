@@ -310,65 +310,88 @@
 
     \section{Auswahlproblem} 
         Finde den Median (mittleres Element) \\
-        \emph{formal}: Gegeben Menge $S$ von $n$ Zahlen und Zahl $i$, $1 \leq i \leq n$. Finde $x$ mit $\btl \{ y | y> x \} \btr = i$
+        \emph{formal}:\\ Gegeben Menge $S$ von $n$ Zahlen und Zahl $i$, $1 \leq i \leq n$. Finde $x$ mit $\btl \{ y | y> x \} \btr = i - 1$
        
         \begin{enumerate}[1.]
             \item Idee: Sortiere und ziehe dann das $i$-te Element $\Ra \LO(n \log n)$
 
-% 2013 nicht behandelt
-%                \item Idee: Wie Quicksort \\
-%                Random. Partiion $(A, q,r)$ zerlegt Array $A$ zwischen Indizes $p$ und $r$ an zufälliges Element $q$ in zwei Mengen 
-%                $A \lbrack p, q-1 \rbrack$ und $A \lbrack q+1, r \rbrack$ 
+
+               \item Idee: Wie Quicksort \\
+                Random. Partiion $(A, q,r)$ zerlegt Array $A$ zwischen Indizes $p$ und $r$ an zufälliges Element $q$ in zwei Mengen 
+               $A \lbrack p, q-1 \rbrack$ und $A \lbrack q+1, r \rbrack$ 
         \end{enumerate}
- 
-% 2013 nicht behandelt
-%            \underline{Random-Select} $(A,p,r,i)$ \\
-%            \begin{verbatim}
-%                if p=r then return A[p]
-%                q <-- Random Partition(A,p,r)  (in \LO(r-p))
-%                k <-- q-p+1
-%                if i = k then A[q]
-%                else if i < k then return Random.Select (A,p,q-1, i)
-%                else return Random.Select (A,q+1, r,i)
-%            \end{verbatim}
-%            worst case: $\LO(n^2)$, ideal case: $n + \frac{n}{2} + \frac{n}{4} + \ldots + 2 + 1 = \LO(2n) \in \LO(n)$ \\
-%            average case: Sei $T(n)$ Zufallsvar. für die Laufzeit von Random Selection. \\
-%            Random Partition zerlegt die Menge der Größe $n$ mit Wahrscheinlichkeit $\frac{1}{n}$ in Teilmengen der Größen $k$ und $n-k$. \\
-%            Also definiere für $k=1,2, \ldots, n$ \\
-%            $x_k = \begin{cases} 1 & \text{ falls } A \lbrack p,q \rbrack  k \text{ Elemente hat} \\
-%            0 & \text{ sonst}
-%            \end{cases} \Ra E(X_k) = \frac{1}{n}$
-%            \underline{Beobachtung}: 
-%            \begin{itemize}
-%                \item $T(n)$ ist monoton.
-%                \item Laufzeit ist größer, falls $i$ in größerer Teilmenge.
-%            \end{itemize}
-%            $\Ra $
-%            \begin{eqnarray*}
-%                T(n) & \leq &  \sum \limits_{k=1}^n X_k \cdot (T(\max(k-1, n-1))+ \LO(n)) \\
-%                &=& \sum \limits_{k=1}^n X_k \cdot T(\max(k-1, n-k)) + \LO(n) 
-%            \end{eqnarray*}
-%            und damit : \\
-%            \begin{eqnarray*}
-%                E(T(n)) &=& E( \sum \limits_{k=1}^n X_k \cdot T(\max (k-1, n-k)) + \LO(n)) \\
-%                &=& E(\sum \limits_{k=1}^n X_k \cdot T(\max(k-1, n-k)) + \LO(n) \\
-%                &=& \sum E(X_k) \cdot E(T_{\max} (k-1, n-k)) + \LO(n) \\
-%                &=& \sum \limits_{k=1}^n \frac{1}{n} \cdot E(T_{\max} (k-1, n-k)) + \LO(n) \\
-%                &\leq& \frac{2}{n} \sum \limits_{k= \lfloor \frac{n}{2} \rfloor}^{n-1} E(T(k)) + \LO(n)
-%            \end{eqnarray*}
-%            Da $X_k$ und $T_{\max}$ unabhängig sind.
-%        \end{center}
-%        \underline{Behauptung}: $E(T(n)) \leq c \cdot n$ für konstantes $c$. \\
-%        $T(n) = \LO(1)$ falls $n$ konstant $\surd$. 
-%        Induktion: \\
-%          
-%        \begin{eqnarray*}
-%            E(T(n)) &\leq& \frac{2}{n} \sum \limits_{k=\lfloor \frac{n}{2} \rfloor}^n c \cdot k + a \cdot n \text{  (a ist geeignete Konstante.) } \\
-%            &=& \frac{2c}{n} ( \sum \limits_{k=1}^{n-1} k - \sum \limits_{k=1}^{\lfloor \frac{n}{2} \rfloor -1} k) + a \cdot n \\
-%            &\leq& \frac{2c}{n} \cdot (\frac{n^2}{2} - \frac{(\frac{n}{2})^2}{2} ) + a \cdot n \\
-%            &\leq & \frac{2n}{n} \cdot ( \frac{3}{8} n^2) + a \cdot n \\
-%            &=& \frac{3}{4} \cdot c \cdot n + a \cdot n \leq c \cdot n \text{ für } a \leq \frac{c}{4}
-%        \end{eqnarray*}
+            \underline{Random-Select} $(A,p,r,i)$ \\
+\begin{algorithm}
+\caption{RandomSelect}
+\label{alg:randomSelect}
+\begin{algorithmic}[1]
+\Function{RandomPartition}{A,p,r}
+\State A zerteilt in p und r an zufälligen q in Mengen A[p,q-1], A[q+1,r]
+\EndFunction
+\Function{RandomSelect}{$A,p,r,i$}
+	\If{$p = r$}
+		\Return $A[p]$
+	\EndIf
+	\State $q \gets$ \Call{Random Partition}{A,p,r} ($\in \LO(r-p))$
+	\State $k \gets q-p+1$
+	\If{$i = k$}
+		$A[q]$
+	\Else
+		\If{$i < k$}
+		\State\Return\Call{RandomSelect}{$A,p,q-1,i$}
+	\Else\ 
+		\State\Return\Call{RandomSelect}{A,q+1,r,i}
+	\EndIf
+	\EndIf
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+\begin{verbatim}
+    if p=r then return A[p]
+    q <-- Random Partition(A,p,r)  (in \LO(r-p))
+    k <-- q-p+1
+    if i = k then A[q]
+   else if i < k then return Random.Select (A,p,q-1, i)
+   else return Random.Select (A,q+1, r,i)
+\end{verbatim}
+           worst case: $\LO(n^2)$, ideal case: $n + \frac{n}{2} + \frac{n}{4} + \ldots + 2 + 1 = \LO(2n) \in \LO(n)$ \\
+            average case: Sei $T(n)$ Zufallsvar. für die Laufzeit von Random Selection. \\
+            Random Partition zerlegt die Menge der Größe $n$ mit Wahrscheinlichkeit $\frac{1}{n}$ in Teilmengen der Größen $k$ und $n-k$. \\
+            Also definiere für $k=1,2, \ldots, n$ \\
+           $x_k = \begin{cases} 1 & \text{ falls } A \lbrack p,q \rbrack  k \text{ Elemente hat} \\
+            0 & \text{ sonst}
+            \end{cases} \Ra E(X_k) = \frac{1}{n}$
+            \underline{Beobachtung}: 
+            \begin{itemize}
+                \item $T(n)$ ist monoton.
+                \item Laufzeit ist größer, falls $i$ in größerer Teilmenge.
+            \end{itemize}
+            $\Ra $
+            \begin{eqnarray*}
+                T(n) & \leq &  \sum \limits_{k=1}^n X_k \cdot (T(\max(k-1, n-1))+ \LO(n)) \\
+                &=& \sum \limits_{k=1}^n X_k \cdot T(\max(k-1, n-k)) + \LO(n) 
+            \end{eqnarray*}
+            und damit : \\
+            \begin{eqnarray*}
+                E(T(n)) &=& E( \sum \limits_{k=1}^n X_k \cdot T(\max (k-1, n-k)) + \LO(n)) \\
+                &=& E(\sum \limits_{k=1}^n X_k \cdot T(\max(k-1, n-k)) + \LO(n) \\
+                &=& \sum E(X_k) \cdot E(T_{\max} (k-1, n-k)) + \LO(n) \\
+                &=& \sum \limits_{k=1}^n \frac{1}{n} \cdot E(T_{\max} (k-1, n-k)) + \LO(n) \\
+                &\leq& \frac{2}{n} \sum \limits_{k= \lfloor \frac{n}{2} \rfloor}^{n-1} E(T(k)) + \LO(n)
+            \end{eqnarray*}
+            Da $X_k$ und $T_{\max}$ unabhängig sind.
+        
+        \underline{Behauptung}: $E(T(n)) \leq c \cdot n$ für konstantes $c$. \\
+        $T(n) = \LO(1)$ falls $n$ konstant $\surd$. 
+        Induktion: \\
+          
+        \begin{eqnarray*}
+            E(T(n)) &\leq& \frac{2}{n} \sum \limits_{k=\lfloor \frac{n}{2} \rfloor}^n c \cdot k + a \cdot n \text{  (a ist geeignete Konstante.) } \\
+            &=& \frac{2c}{n} ( \sum \limits_{k=1}^{n-1} k - \sum \limits_{k=1}^{\lfloor \frac{n}{2} \rfloor -1} k) + a \cdot n \\
+            &\leq& \frac{2c}{n} \cdot (\frac{n^2}{2} - \frac{(\frac{n}{2})^2}{2} ) + a \cdot n \\
+            &\leq & \frac{2n}{n} \cdot ( \frac{3}{8} n^2) + a \cdot n \\
+            &=& \frac{3}{4} \cdot c \cdot n + a \cdot n \leq c \cdot n \text{ für } a \leq \frac{c}{4}
+        \end{eqnarray*}
           
         Bessere Version:
         \begin{enumerate}
