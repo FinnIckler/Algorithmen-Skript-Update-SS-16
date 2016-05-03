@@ -415,8 +415,6 @@
         T(\frac{n}{5}) + T(\frac{5n}{10}) + c \cdot n & \text{ sonst}
         \end{cases}$ \\
         Behauptung: $T(n)  = c \cdot n$ für $c$ konstant, also $T(n) = \LO(n)$ \\    
-
- 2013 nicht angeschrieben
         Induktion: 
         \begin{eqnarray*}
             T(n) & \leq & c \cdot \frac{n}{5} + c \cdot \frac{7n}{10} + a \cdot n \\
@@ -426,3 +424,86 @@
         \begin{satz}
             In zeit $\LO(n)$ können wir das $i$-te größte element aus einer ungeordneten Menge bestimmen.
         \end{satz}
+\subsection{Ist $n \log n$ optimale Lösung?}
+Idee : Hat Problem $N$ verschiedene Lösungen und kann ein Algorithmus
+pro Schritt höchstens die Hälfte der Lösungen ausschließen ist die Laufzeit 
+$\Omega(\log N)$ im schlechtesten Fall.\\
+Sortieren: Vergleichsbasiert: Nur Paare von Elementen vergleichen
+Resultat: $\leq$ oder $>$.\\
+Algorithmus wird dargestellt als Entscheidungsbaum.\\
+Knoten $s_i:s_j$ steht für Vergleich zwischen $s_i$ und $s_j$.\\
+Kante zum linken Kind steht für Ergebnis $S_i \leq s_j$,\\
+Kante zum rechten Kind steht für Ergebnis $s_i > s_j$\\
+Beispiel\\
+Pfad von Wurzel zu Blatt entspricht Folge von Vergleichen,\\
+die zu einem dazu passenden Ergebnis fuhren.\\
+\subsubsection{Entscheidungsbaum}
+Entscheidungsbaum $T$ löst Sortierproblem für $n$ Elemente, falls es 
+Markierungen der Blätter mit Permutationen gibt, so dass für jede Eingabe $s_1,\ldots,s_n \in U$ gilt:
+Ist das erreichte Blatt mi $\pi$ markiert, so gilt: $s_\pi(1) \geq \ldots s_\pi(n$)
+vergleichbasierte Sortieralgorithmen $\equiv$  Entscheidungsbäume $\to$ Entscheidungsalgorithmen\\
+Für Entscheidungsbaum $T$ und Permutation $\pi$ von $\{1,2,\ldots n\}$ sei $I^T_pi$ die Tiefe des Blatts Für EIngabe $s_1,\ldots,s_n$ mit $s_{\pi(1)} \leq \ldots \leq s_{\pi(n)}$\\
+Definiere $S(n) :\!= min_T max_\pi I^T_\pi\\
+S(n)$ ist die minimale worst-case Komplexität des Sortierproblems.\\
+Das es $n!$ Permutationen für $\{ 1,2,\ldots,n \}$ gibt, muss ein Entscheidungsbaum mindestens $n!$ Blätter haben.\\
+\begin{satz}
+$S(n)  = \lceil \log n! \rceil$.\\
+also: Jeder Entscheidungsbaumalgorithmus für Sortieren braucht im worst case mindestens $\lceil \log n! \rceil$ Vergleiche.
+\end{satz}
+\begin{proof}
+Binäre Bäume der Tiefe $k$ haben $\leq 2^k$ Blätter. Ist $S(n) \leq \lceil \log n! \rceil - 1$, so gibt es T mit Tiefe $\leq \lceil \log n! \rceil -1 $ für alle Blätter\\
+$\Rightarrow T$ hat $\leq 2^{\lceil \log n! \rceil -1} < 2^{\log n!} = n!$ Blätter
+$\Lightning$
+\end{proof}
+$\to$ Stirlingapproximation:\\
+$\log n! = (n + 1/2)\log n -n/\ln 2 + O(1) = n \log n -1.44 n + O(\log n)$
+\subsection{Elementeindeutigkeitsproblem}
+Gegeben: $s_1,\ldots s_n \in U$, entscheide, ob alle verschieden sin, also $s_1 \ne s_j$ für alle $i \ne j$.
+Im Entscheidungsbaum $T$ für $E$-Eindeutigkeit haben Blätter Markierungen 'Ja' oder 'Nein'.\\
+An Folge $s_1 \ldots, s_n$ wird 'ja' Blatt erreicht $\Leftrightarrow$ $s_i \ne s_j$ für alle $i \ne j$.\\
+Behauptung: $T$ hat mindestens $n!$ Blätter\\
+Beweisidee:
+\begin{enumerate}[1.]
+\item Sei $v(\pi)$ das bei der Folge $\pi^{-1}(1),\ldots,\pi^{-1}(n)$ für Permutationen $\pi$ von $\{1,\ldots,n \}$ erreichte Blatt. Dann wird Blatt $v(\pi)$ für jede Folge $s_1,\ldots,s_n$ mit $s_{\pi(1)} < s_{\pi(2)} < \ldots < s_{\pi(n)}$ erreicht.
+\item Für 2 Permutationen $\pi \ne p$ gilt $v(\pi) \ne v(p)$, also enden Berechnungen jeweils in verschiedenen Blättern.
+\end{enumerate}
+Verschiedene Permutationen enden in verschieden Blättern.\\
+$\Rightarrow\ T$ hat mindestens $n!$ Blätter.
+\begin{satz}
+Jeder Entscheidungsbaumalgorithmus für Elementeindeutigkeit auf $n$ Elementen braucht $\geq \lceil \log n! \rceil$ Vergleiche im worst case.
+\end{satz}
+aber: nur Vergleichsoperationen gezählt. Wie steht es mit arithmetischen Operationen?\\
+Für Eingabe $s_1,\ldots, s_n$ berechne $S = \prod_{i<j}(s_i-s_j)$\\
+\texttt{if S = 0 return 'Nein' else return 'Ja'}.\\
+Nur 2 Vergleiche! $\to$ Modell unzureichend !
+\subsubsection{algebraische Entscheidungsbäume}
+Erweitern Entscheidungsbäume um unäre Konten (1 Kind).\\
+Diese sind markiert mit Ergebnissen von arithmetischen Operationen ($+,-,\cdot,\div,\sqrt{}$) auf Vorgängerknoten.\\
+$\to$ algebraische Entscheidungsbaumalgorithmen\\
+Die worst-case Komplexität eines algebraischen Entscheidungsbaumalgorithmus $T$ ist definiert als die Tiefe von $T$ (längster Pfad von Wurzel zu einem Blatt).\\
+Die worst-case Komplexität des Mitgliedschafts-Problems von einer Menge $V \in \R^n$ ist definiert als die minimale Tiefe eines algebraischen Entscheidungsbaumes der die charakteristische Funktion von $V$ berechnet.\\
+Beispiel: $V :\!= \{(s_1,\ldots,s_n) \in \R^n : \prod_{i < j} \ne 0 \}$ ist die Menge der 'Ja' Instanzen des Elementeindeutigkeitsproblems.\\
+Sei $V \subset \R^n$. Dann sei $\#V$ die Zahl der Komponenten von $V$.\\
+2 Punkte $x,y \in W$ sind in selber Komposition wenn es Kurve innerhalb $W$ gibt, die $x$ und $y$ verbindet.\\
+\begin{satz}
+von Ben-Or:\\
+Sei $T$ ein algebraischer Entscheidungsbaum, der das Mitgliedschaftsproblem für $V \subset \R^n$ löst.\\
+Sei $M :\!= \max(\#V,\#(\R^n v))$ und $h$ die Tiefe von $T$.\\
+Dann ist $M \geq 2^h \cdot 3^{h+ n}$, damit $h \geq (\log M - n \log 3)/\log 6$
+\end{satz}
+Für den Satz von Ben-Or gibt es zwei Anwendungen: Elementeindeutigkeit und die konvexe Hülle.
+\subsection{Anwendung: Elementeindeutigkeit}
+\begin{satz}
+Im algebraischen Entscheidungsmodell ist die worst-case Komplexität des Elementeindeutigkeitsproblems bei $n$ reellen Zahlen $\Omega(n\log n)$
+\end{satz}
+\begin{proof}
+$V :\!= \{(s_1,\ldots,s_n) \in \R^n : \prod_{i < j} \ne 0 \}$ ist die Menge der 'Ja' Instanzen.\\
+Aus Behauptung: $\lvert V \rvert \geq n!$ folgt, dass Tiefe des Entscheidungsbaums $\geq \dfrac{\log n! - n \log 3}{\log 6} = \Omega(n \log n)$\\
+Noch zu zeigen: Behauptung $\lvert V \rvert \geq n!$\\
+Seien $\pi$ und $p$ verschiedene Permutationen von $\{1,\ldots n \}.$\\
+Seien $P = \pi(1),\ldots \pi(n)$ und $R = p(1), \ldots p(n)$.\\
+Dann sind $P$ und $R$ in Menge $V$.\\
+Es gibt Indizes $i$ und $j$ mit $\pi(i) < \pi(j)$ und $p(i) > p(j)$.\\
+Jede stetige Kurve in $\R^n$ von $P$ nach $R$ verläugt durch einen Punkt mit gleichen $i-$ und $j-$Koordinaten, der also nicht in $V$ ist.\\
+$\Rightarrow P$ und $R$ gehören zu verschiedenen Komponenten von $V$.
+\end{proof}
