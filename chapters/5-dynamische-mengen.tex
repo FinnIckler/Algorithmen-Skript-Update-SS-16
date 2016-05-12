@@ -243,6 +243,28 @@
 
         
         \subsection{Streichen($w$) in AVL-Bäumen}
+			\begin{algorithmic}
+\begin{algorithm}
+\Function{Streiche}{AVL}
+	\State key $\gets$ \Call{Suche}{x}
+	\If{\textsc{isBlatt}{u}}
+		\State \Call{streiche}{u}
+		\State \Call{rson}{parent(u)} $\gets$ \Call{lson}{parent}{u}
+		$\gets$ \textbf{void}
+	\EndIf
+	\If{\textsc{numberOfChildren}{u} = 1}\Comment{o.B.d.A sei $u = rson(parent(u))$}
+		\State \Call{rson}{parent(u)} $\gets$ w
+		\State \Call{streiche}{u}
+	\EndIf
+	\If{\textsc{numberOfChildren}{u} > 1}
+		\State $v \gets$  \Call{FindMaxKey}{\textsc{lson}(u)}
+		\State \Call{ersetze}{u,v}
+		\State \Call{streiche}{v}
+	\EndIf
+\EndFunction
+	
+\end{algorithm}
+\end{algorithmic}
             Annahme: es gibt Knoten mit Bal $\pm 2$.\\
             Sei $u$ der tiefste solche Knoten.\\
             O.B.d.A. sei $Bal(u) = 2$.\\
