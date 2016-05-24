@@ -493,15 +493,24 @@
             \end{lemma}
 
             Algorithmus: \\
-            \begin{alltt}
-                Suchen(x): Starte in w= Wurzel \\
-                suche kleinstes \( s_i \) in w mit \( x \leq s_i \) \\
-                falls \( s_i \) existiert, dann 
-                if \( x= s_i \) then gefunden 
-                else w \( \leftarrow \) i-tes Kind von w , suche dort weiter
-                falls \( s_i \) nicht existiert, dann 
-                w \( \leftarrow \) rechtestes Kind von w, suche dort weiter.
-            \end{alltt}
+            \begin{algorithm}
+				\begin{algorithmic}
+				\Function{Suchen}{x} \Comment{Starte in w= Wurzel}
+	                \State suche kleinstes \( s_i \) in w mit \( x \leq s_i \) 
+	                \If{\( s_i \) existiert}
+				        \If{\( x= s_i \)}
+							\State gefunden
+		                \Else
+							\State w \( \leftarrow \) i-tes Kind von w
+							\State \Call{Suchen}{w}
+						\EndIf
+	                \Else
+		                \State w \( \leftarrow \) rechtestes Kind von w
+						\State \Call{Suchen}{w}
+					\EndIf
+				\EndFunction
+				\end{algorithmic}
+            \end{algorithm}
             Laufzeit: $\LO(\log_k n \cdot k)$ (Höhe mal Suche innerhalb eines Knotens)\\
 
         \subsection{Einfügen(x)}
