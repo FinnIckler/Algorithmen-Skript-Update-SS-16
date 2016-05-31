@@ -443,7 +443,7 @@
                 \begin{align*}
                 		\sum \limits_{i} \LO(1+ \log f_i) 	&= \LO(n + \sum \limits_{i=1}^n \log f_i) \\
                 									&= \LO(n+\log \prod \limits_{i=1}^n f_i\\
-                									&= \LO(n+\log \prod \limits_{i=1}^n \frac{F}{n}\\
+                									&= \LO(n+\log \prod \limits_{i=1}^n \frac{F}{n})	\\
                 									&\leq \LO(n + n \log \frac{F}{n})
                 \end{align*}
                 $x_i$ wird nach dem $f_i$-ten Element in die bisherige Liste eingefügt.
@@ -581,7 +581,7 @@
             \emph{Geometische Verteilung:}\\
             Wirf Münze, bis Zahl fällt. X ist Anzahl der benötigten Würfe.
             
-            $E(X)=\frac{1}{p}$, $Var(X)=\frac{1-p}{p}$\\\\
+            $E(X)=\frac{1}{p}$, $Var(X)=\frac{1-p}{p^2}$\\\\
             
             Erwarteter Platzbedarf für zufällige Skiplist mit $|S|=n$ ist also $2n=\LO(n)$
             
