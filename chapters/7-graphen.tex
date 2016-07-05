@@ -221,7 +221,7 @@
                     	\caption{Single Source Shortest Path --- Graph azyklisch}
                     	\label{alg:sssp1}
                     	\begin{algorithmic}
-                    		\State d(s) $\gets$ 0, Pfad(s) $\gets$ s
+                    		\State d(u) $\gets$ 0, Pfad(s) $\gets$ s
                     		\State d(v) $\gets \infty \forall v\in V\backslash \set{s}$
                     		\For{$i\gets s+1$ to $n$}
                     			\State d(v) $\gets \min_u\set{d(n)+c((u,v)) | (u,v)\in E}$
@@ -844,7 +844,7 @@ for i <- 1 to n do
     if R(i) = a then R(i) <- b
 od
 \end{verbatim}
-                Damit erhält man eine Laufzeit von Find in $\LO(1)$ und Union in $\LO(n)$. Gesamt also $\LO(m+n^2üm \log m)$
+                Damit erhält man eine Laufzeit von Find in $\LO(1)$ und Union in $\LO(n)$. Gesamt also $\LO(m+n^2+m \log m)$
             \end{enumerate}   
             Wir wollen nun den Union von $\LO(n)$ so verbessern, dass er nicht alle Elemente besucht.  Merke für jede Menge die Elemente, die dort enthalten sind. Behalte bei Union immer den Namen der größeren Menge. Benötigte Funktionen sind nun in \autoref{alg:unionFind} dargestellt. Worst case Union: $\LO(n), \abs{a} = \frac{n}{2}, \abs{b} = \frac{n}{2}$. 
     	\begin{algorithm}
@@ -951,7 +951,7 @@ od
         
         
         \subsubsection{Laufzeit}
-            Priority Queue mit Schlüsseln $\set{c(w) | w \not \in T \land c(w) = \min\set{c(u,w),u \in T}}$. Suche $w$ mit kleinstem $c(w)$, entspricht deleteMin bei Dijkstra. Wird $w$ in $T$ eingefügt, so tue für alle $(w,x) \in E$ mit $x \not \in T$ und $c(x) \leftarrow \min \set{c(x), c(w,x)}$. Das entspricht DecreasyKey bei Dijkstra. 
+            Priority Queue mit Schlüsseln $\set{c(w) | w \not \in T \land c(w) = \min\set{c(u,w),u \in T}}$. Suche $w$ mit kleinstem $c(w)$, entspricht deleteMin bei Dijkstra. Wird $w$ in $T$ eingefügt, so tue für alle $(w,x) \in E$ mit $x \not \in T$ und $c(x) \leftarrow \min \set{c(x), c(w,x)}$. Das entspricht DecreaseKey bei Dijkstra. 
             
         \subsubsection{Implementierung}
             Priority Queue als primären Heap. Dabei gehen Operationen in $\LO(\log n)$. Insgesamt also $\LO(m \log n)$. Statt bin. Heap verwende (a,b)-Baum mit $ a = \max(2,\frac{m}{n})$ und $b=2a$. Damit ergibt sich eine Laufzeit von $\LO(m \frac{\log n}{\log \frac{m}{n}})$ Das ist gut, wenn $m$ etwa $n^2$ ist.
